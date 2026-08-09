@@ -1,0 +1,103 @@
+DIAGNÓSTICO COMPLETO - PROJETO AURORA - Para continuidade em outra IA
+
+1. ONDE TÁ SENDO CRIADO:
+- Plataforma: Snack.expo.dev - projeto 'supportive violet orange' - usuario @nomac
+- Dispositivo: Celular Android, Chrome, Ribeirão das Neves - MG
+- Teste: My Device via Expo Go e aba Web (Chrome)
+- Stack: React Native + Expo SDK 53/54, sem node_modules local, tudo no celular
+
+2. COMO FOI INICIADO - ROTEIRO REAL:
+- Ideia: App para avó surda - traduzir voz para Libras e Libras para voz
+- Nome: AURORA - A Luz que Traduz
+- Cores: Fundo #F4F2ED, Verde #16726E, Azul #405974
+- Erro inicial: SyntaxError Unexpected token (39:1) por % perdido no StyleSheet
+- Tentativa falha: Instalar expo-speech-recognition no package.json deu erro vermelho 'Cannot find native module ExpoSpeechRecognition' - Snack nao suporta modulo nativo
+- Solucao: Usar Web Speech API (window.SpeechRecognition || webkitSpeechRecognition) na aba WEB
+- Sucesso: 23:41 com 9% bateria, frase transcrita: 'Oi tudo bem que que voce consegue escrever tudo que eu to falando aqui'
+
+3. ONDE PARAMOS - PASSO 4 ATUAL:
+FUNCIONA:
+- App abre sem erros
+- Botao Segure para Falar muda cor verde->vermelho #FF3B30
+- Transcricao real na aba WEB em pt-BR
+- Funcao traduzirParaLibras() gera GLOSA em maiusculas
+- Tela azul escura com avatar e glosa
+
+NAO FUNCIONA / MOCKADO:
+- Botao Abrir Camera Libras
+- Botao Digitar Texto
+- Avatar 3D real (so emoji)
+- Transcricao no celular sem ser Web
+
+package.json atual:
+{
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.3",
+    "react-native-paper": "4.9.2"
+  }
+}
+
+4. CODIGO ATUAL FUNCIONANDO (App.js Passo 4):
+import { useState } from 'react';
+import { Text, View, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+
+export default function App() {
+  const [texto, setTexto] = useState('Oi! Eu sou a Aurora!');
+  const [ouvindo, setOuvindo] = useState(false);
+  const [emLibras, setEmLibras] = useState(false);
+  const [glosa, setGlosa] = useState('');
+
+  function traduzirParaLibras(frase) {
+    let g = frase.toUpperCase();
+    g = g.replace(/VOCES/g, 'VOCE').replace(/ESTA/g, 'ESTAR').replace(/TUDO BEM/g, 'TUDO BEM?');
+    setGlosa(g);
+    setEmLibras(true);
+  }
+
+  function comecarOuvir() {
+    setOuvindo(true);
+    setTexto('Ouvindo... pode falar!');
+    setEmLibras(false);
+    if (Platform.OS === 'web') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const rec = new SpeechRecognition();
+        rec.lang = 'pt-BR';
+        rec.onresult = (e) => {
+          const t = e.results[0][0].transcript;
+          setTexto(t);
+          traduzirParaLibras(t);
+          setOuvindo(false);
+        };
+        rec.onerror = () => setOuvindo(false);
+        rec.onend = () => setOuvindo(false);
+        rec.start();
+      }
+    }
+  }
+
+  function pararOuvir() {
+    setOuvindo(false);
+    if (Platform.OS!== 'web' &&!emLibras) {
+      const t = 'Oi tudo bem que bom te ver';
+      setTexto(t);
+      traduzirParaLibras(t);
+    }
+  }
+  // ... resto com 2 telas
+}
+
+5. ROTEIRO CONTINUIDADE:
+Passo 5 - Avatar VLibras Real (PROXIMO):
+- Nao usar biblioteca nativa que quebre Snack
+- No Web: injetar script https://vlibras.gov.br/app/vlibras-plugin.js e usar window.VLibras.Widget para boneco 3D
+- Entrega: App.js completo compativel com Snack Web com boneco fazendo sinais
+
+Passo 6 - Camera Libras:
+- Usar expo-camera + MediaPipe Hands ou API
+- Deixar preparado para VS Code se nao funcionar no Snack
+
+Passo 7 - Build APK Real:
+- Migrar para VS Code: npx create-expo-app Aurora, copiar codigo, instalar expo-speech-recognition, eas build -p android
+
+Instrucao para proxima IA: Continue a Aurora do Passo 5. Codigo atual transcreve voz na aba Web. Preciso do avatar 3D do VLibras traduzindo a glosa. Me de App.js completo compativel com Snack Web.
