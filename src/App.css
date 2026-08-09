@@ -1,0 +1,15 @@
+.container {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 100vh; background: #1a1a2e; color: white; padding: 20px; font-family: Arial;
+}
+h1 { color: #4F72ED; font-size: 32px; margin: 0; }
+.sub { color: #aaa; margin-bottom: 30px; }
+.tela { background: #16213e; padding: 20px; border-radius: 16px; width: 90%; max-width: 400px; min-height: 120px; margin-bottom: 20px; }
+.texto { font-size: 18px; text-align: center; }
+.glosa { font-size: 20px; color: #F72E02; font-weight: bold; text-align: center; margin-top: 10px; }
+.botao {
+  background: #4CAF50; color: white; border: none; padding: 20px 40px;
+  font-size: 16px; font-weight: bold; border-radius: 50px; cursor: pointer;
+  transition: 0.2s;
+}
+.botao.gravando { background: #FF3B30; transform: scale(1.1); }
