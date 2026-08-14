@@ -3,7 +3,10 @@ import { AMOSTRAS, TAXA, carregarReconhecedor, reconhecer } from './sons.js'
 
 const LIMIARES = { baixa: 60, media: 42, alta: 28 }
 const ESPERA_ENTRE_ALERTAS = 3000
-const CONFIANCA_MINIMA = 0.2
+const CONFIANCA_MINIMA = 0.18
+const CONFIANCA_SOZINHA = 0.5
+const INTERVALO_ANALISE = 700
+const VALIDADE = 2500
 const JANELA = 16384
 
 function agora() {
@@ -31,7 +34,9 @@ export default function Ambiente({ aoVoltar }) {
   const streamRef = useRef(null)
   const capturaRef = useRef(null)
   const rafRef = useRef(null)
-  const ultimoRef = useRef(0)
+  const ultimoAlertaRef = useRef(0)
+  const ultimaAnaliseRef = useRef(0)
+  const melhorRef = useRef(null)
   const limiarRef = useRef(LIMIARES.media)
   const recRef = useRef(null)
 
@@ -63,6 +68,7 @@ export default function Ambiente({ aoVoltar }) {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
     rafRef.current = null
     capturaRef.current = null
+    melhorRef.current = null
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop())
@@ -100,13 +106,25 @@ export default function Ambiente({ aoVoltar }) {
       const v = Math.abs(onda[i])
       if (v > pico) pico = v
     }
-    if (pico < 0.005) return { erro: 'áudio chegou vazio no analisador' }
+    if (pico < 0.004) return null
+
+    if (pico < 0.85) {
+      const ganho = 0.9 / pico
+      for (let i = 0; i < onda.length; i++) onda[i] = onda[i] * ganho
+    }
 
     try {
       return reconhecer(recRef.current, onda)
     } catch {
-      return { erro: 'falha ao analisar o som' }
+      return null
     }
+  }
+
+  function melhorRecente() {
+    const m = melhorRef.current
+    if (!m) return null
+    if (Date.now() - m.quando > VALIDADE) return null
+    return m
   }
 
   async function ligar() {
@@ -152,6 +170,7 @@ export default function Ambiente({ aoVoltar }) {
     streamRef.current = stream
     ctxRef.current = ctx
     capturaRef.current = captura
+    melhorRef.current = null
     setLigado(true)
 
     const dados = new Uint8Array(medidor.fftSize)
@@ -169,29 +188,42 @@ export default function Ambiente({ aoVoltar }) {
 
       setNivel(valor)
 
-      if (valor >= limiarRef.current) {
-        const instante = Date.now()
-        if (instante - ultimoRef.current > ESPERA_ENTRE_ALERTAS) {
-          ultimoRef.current = instante
+      const instante = Date.now()
 
-          const achado = analisar()
+      if (instante - ultimaAnaliseRef.current > INTERVALO_ANALISE) {
+        ultimaAnaliseRef.current = instante
+        const achado = analisar()
 
-          if (!achado) {
-            registrar('Som forte detectado', 'reconhecedor ainda não carregou')
-          } else if (achado.erro) {
-            registrar('Som forte detectado', achado.erro)
-          } else if (achado.nota >= CONFIANCA_MINIMA) {
-            registrar(
-              'Possível ' + achado.texto,
-              'certeza ' + porcento(achado.nota) +
-                ' · modelo apontou ' + achado.geral + ' (' + porcento(achado.notaGeral) + ')'
-            )
-          } else {
-            registrar(
-              'Som forte, tipo não identificado',
-              'modelo apontou ' + achado.geral + ' (' + porcento(achado.notaGeral) + ')'
-            )
+        if (achado && achado.texto) {
+          const anterior = melhorRecente()
+          if (!anterior || achado.nota > anterior.nota) {
+            melhorRef.current = {
+              texto: achado.texto,
+              nota: achado.nota,
+              geral: achado.geral,
+              notaGeral: achado.notaGeral,
+              quando: instante,
+            }
           }
+        }
+      }
+
+      const forte = valor >= limiarRef.current
+      const bom = melhorRecente()
+      const certeza = bom && bom.nota >= CONFIANCA_SOZINHA
+
+      if ((forte || certeza) && instante - ultimoAlertaRef.current > ESPERA_ENTRE_ALERTAS) {
+        ultimoAlertaRef.current = instante
+
+        if (bom && bom.nota >= CONFIANCA_MINIMA) {
+          registrar(
+            'Possível ' + bom.texto,
+            'certeza ' + porcento(bom.nota) +
+              ' · modelo apontou ' + bom.geral + ' (' + porcento(bom.notaGeral) + ')'
+          )
+          melhorRef.current = null
+        } else {
+          registrar('Som forte, tipo não identificado', '')
         }
       }
 
@@ -307,4 +339,4 @@ export default function Ambiente({ aoVoltar }) {
       </footer>
     </div>
   )
-            }
+}
