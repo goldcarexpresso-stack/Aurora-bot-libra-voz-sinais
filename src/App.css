@@ -517,3 +517,19 @@ body {
   padding-top: 14px;
   border-top: 2px solid #2A5170;
 }
+
+/* ----- Libras ----- */
+
+.para-traduzir {
+  padding: 20px;
+  background: #14304A;
+  border: 2px solid #7FD1CC;
+  border-radius: 20px;
+}
+
+.instrucao {
+  padding: 16px;
+  background: #14304A;
+  border: 2px dashed #2A5170;
+  border-radius: 16px;
+}
