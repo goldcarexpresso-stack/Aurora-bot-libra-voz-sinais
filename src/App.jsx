@@ -7,6 +7,7 @@ import Contatos from './Contatos.jsx'
 import Conversas from './Conversas.jsx'
 import Libras from './Libras.jsx'
 import Ambiente from './Ambiente.jsx'
+import Painel from './Painel.jsx'
 
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
@@ -24,6 +25,8 @@ export default function App() {
   const [carregando, setCarregando] = useState(true)
   const [aberto, setAberto] = useState(null)
   const [noPerfil, setNoPerfil] = useState(false)
+  const [noPainel, setNoPainel] = useState(false)
+  const [dono, setDono] = useState(false)
 
   useEffect(() => {
     if (!conectado) {
@@ -40,10 +43,33 @@ export default function App() {
       setSessao(nova)
       setAberto(null)
       setNoPerfil(false)
+      setNoPainel(false)
     })
 
     return () => escuta.subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if (!sessao) {
+      setDono(false)
+      return
+    }
+
+    let vivo = true
+
+    supabase
+      .from('perfis')
+      .select('dono')
+      .eq('id', sessao.user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (vivo) setDono(Boolean(data && data.dono))
+      })
+
+    return () => {
+      vivo = false
+    }
+  }, [sessao])
 
   if (!conectado) {
     return (
@@ -71,6 +97,10 @@ export default function App() {
   }
 
   if (!sessao) return <Login />
+
+  if (noPainel && dono) {
+    return <Painel aoVoltar={() => setNoPainel(false)} />
+  }
 
   if (noPerfil) {
     return <Perfil sessao={sessao} aoVoltar={() => setNoPerfil(false)} />
@@ -135,6 +165,13 @@ export default function App() {
           <span className="card-icone">👤</span>
           <span className="card-titulo">Meu perfil</span>
         </button>
+
+        {dono && (
+          <button className="card card-dono" onClick={() => setNoPainel(true)}>
+            <span className="card-icone">📊</span>
+            <span className="card-titulo">Painel do dono</span>
+          </button>
+        )}
       </nav>
 
       <footer className="rodape">
