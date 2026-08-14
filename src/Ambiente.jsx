@@ -4,6 +4,7 @@ import { AMOSTRAS, TAXA, carregarReconhecedor, reconhecer } from './sons.js'
 const LIMIARES = { baixa: 60, media: 42, alta: 28 }
 const ESPERA_ENTRE_ALERTAS = 3000
 const CONFIANCA_MINIMA = 0.2
+const JANELA = 16384
 
 function agora() {
   return new Date().toLocaleTimeString('pt-BR', {
@@ -28,15 +29,11 @@ export default function Ambiente({ aoVoltar }) {
 
   const ctxRef = useRef(null)
   const streamRef = useRef(null)
-  const noRef = useRef(null)
+  const capturaRef = useRef(null)
   const rafRef = useRef(null)
   const ultimoRef = useRef(0)
   const limiarRef = useRef(LIMIARES.media)
-  const bufferRef = useRef(new Float32Array(AMOSTRAS))
-  const posRef = useRef(0)
-  const cheioRef = useRef(false)
   const recRef = useRef(null)
-  const ocupadoRef = useRef(false)
 
   useEffect(() => {
     limiarRef.current = LIMIARES[sensibilidade]
@@ -65,12 +62,8 @@ export default function Ambiente({ aoVoltar }) {
   function desligar() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
     rafRef.current = null
+    capturaRef.current = null
 
-    if (noRef.current) {
-      noRef.current.disconnect()
-      noRef.current.onaudioprocess = null
-      noRef.current = null
-    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop())
       streamRef.current = null
@@ -79,21 +72,9 @@ export default function Ambiente({ aoVoltar }) {
       ctxRef.current.close().catch(() => {})
       ctxRef.current = null
     }
-    posRef.current = 0
-    cheioRef.current = false
     setLigado(false)
     setNivel(0)
     setAlerta(false)
-  }
-
-  function ordenar() {
-    const buffer = bufferRef.current
-    if (!cheioRef.current) return buffer.slice(0, posRef.current)
-    const saida = new Float32Array(AMOSTRAS)
-    const corte = posRef.current
-    saida.set(buffer.subarray(corte), 0)
-    saida.set(buffer.subarray(0, corte), AMOSTRAS - corte)
-    return saida
   }
 
   function registrar(texto, detalhe) {
@@ -106,16 +87,25 @@ export default function Ambiente({ aoVoltar }) {
   }
 
   function analisar() {
-    if (ocupadoRef.current || !recRef.current) return null
-    if (!cheioRef.current && posRef.current < AMOSTRAS) return null
+    const captura = capturaRef.current
+    if (!captura || !recRef.current) return null
 
-    ocupadoRef.current = true
+    const janela = new Float32Array(JANELA)
+    captura.getFloatTimeDomainData(janela)
+
+    const onda = janela.slice(JANELA - AMOSTRAS)
+
+    let pico = 0
+    for (let i = 0; i < onda.length; i++) {
+      const v = Math.abs(onda[i])
+      if (v > pico) pico = v
+    }
+    if (pico < 0.005) return { erro: 'áudio chegou vazio no analisador' }
+
     try {
-      return reconhecer(recRef.current, ordenar())
+      return reconhecer(recRef.current, onda)
     } catch {
-      return { erro: 'Falha ao analisar o som.' }
-    } finally {
-      ocupadoRef.current = false
+      return { erro: 'falha ao analisar o som' }
     }
   }
 
@@ -141,42 +131,33 @@ export default function Ambiente({ aoVoltar }) {
 
     const Contexto = window.AudioContext || window.webkitAudioContext
     const ctx = new Contexto({ sampleRate: TAXA })
-    const fonte = ctx.createMediaStreamSource(stream)
-
-    const analisador = ctx.createAnalyser()
-    analisador.fftSize = 1024
-    fonte.connect(analisador)
-
-    const coletor = ctx.createScriptProcessor(4096, 1, 1)
-    const mudo = ctx.createGain()
-    mudo.gain.value = 0
-
-    coletor.onaudioprocess = (evento) => {
-      const dados = evento.inputBuffer.getChannelData(0)
-      const buffer = bufferRef.current
-      for (let i = 0; i < dados.length; i++) {
-        buffer[posRef.current] = dados[i]
-        posRef.current++
-        if (posRef.current >= AMOSTRAS) {
-          posRef.current = 0
-          cheioRef.current = true
-        }
+    if (ctx.state === 'suspended') {
+      try {
+        await ctx.resume()
+      } catch {
+        // segue mesmo assim
       }
     }
 
-    fonte.connect(coletor)
-    coletor.connect(mudo)
-    mudo.connect(ctx.destination)
+    const fonte = ctx.createMediaStreamSource(stream)
+
+    const medidor = ctx.createAnalyser()
+    medidor.fftSize = 1024
+    fonte.connect(medidor)
+
+    const captura = ctx.createAnalyser()
+    captura.fftSize = JANELA
+    fonte.connect(captura)
 
     streamRef.current = stream
     ctxRef.current = ctx
-    noRef.current = coletor
+    capturaRef.current = captura
     setLigado(true)
 
-    const dados = new Uint8Array(analisador.fftSize)
+    const dados = new Uint8Array(medidor.fftSize)
 
     function medir() {
-      analisador.getByteTimeDomainData(dados)
+      medidor.getByteTimeDomainData(dados)
 
       let soma = 0
       for (let i = 0; i < dados.length; i++) {
@@ -196,7 +177,7 @@ export default function Ambiente({ aoVoltar }) {
           const achado = analisar()
 
           if (!achado) {
-            registrar('Som forte detectado', 'reconhecedor ainda não pronto')
+            registrar('Som forte detectado', 'reconhecedor ainda não carregou')
           } else if (achado.erro) {
             registrar('Som forte detectado', achado.erro)
           } else if (achado.nota >= CONFIANCA_MINIMA) {
@@ -326,4 +307,4 @@ export default function Ambiente({ aoVoltar }) {
       </footer>
     </div>
   )
-  }
+            }
