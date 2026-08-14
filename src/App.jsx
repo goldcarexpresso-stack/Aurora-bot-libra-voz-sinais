@@ -6,13 +6,14 @@ import Falar from './Falar.jsx'
 import Contatos from './Contatos.jsx'
 import Conversas from './Conversas.jsx'
 import Libras from './Libras.jsx'
+import Ambiente from './Ambiente.jsx'
 
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
   { id: 'conversas', icone: '💬', titulo: 'Minhas conversas' },
   { id: 'contatos', icone: '👥', titulo: 'Contatos' },
-  { id: 'ambiente', icone: '👁️', titulo: 'Sentir o ambiente', fase: 'Fase 4' },
+  { id: 'ambiente', icone: '👁️', titulo: 'Sentir o ambiente' },
   { id: 'sos', icone: '🚨', titulo: 'SOS', fase: 'Fase 5' },
   { id: 'confianca', icone: '🔐', titulo: 'Contatos de confiança', fase: 'Fase 5' },
   { id: 'config', icone: '⚙️', titulo: 'Configurações', fase: 'Fase 1' },
@@ -91,6 +92,10 @@ export default function App() {
     return <Conversas sessao={sessao} aoVoltar={() => setAberto(null)} />
   }
 
+  if (aberto && aberto.id === 'ambiente') {
+    return <Ambiente aoVoltar={() => setAberto(null)} />
+  }
+
   if (aberto) {
     return (
       <div className="tela">
@@ -133,8 +138,7 @@ export default function App() {
       </nav>
 
       <footer className="rodape">
-        Fase 3 — português para Libras pelo VLibras.
-        A leitura de sinais pela câmera ainda não existe.
+        SOS e contatos de confiança ainda não foram construídos.
       </footer>
     </div>
   )
