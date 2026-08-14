@@ -27,15 +27,13 @@ function porcento(n) {
 }
 
 export default function Ambiente({ aoVoltar }) {
-  const [ligado, setLigado] = useState(false)
+  const [modo, setModo] = useState('parado')
   const [nivel, setNivel] = useState(0)
   const [sensibilidade, setSensibilidade] = useState('media')
   const [eventos, setEventos] = useState([])
   const [alerta, setAlerta] = useState(false)
   const [erro, setErro] = useState('')
   const [modelo, setModelo] = useState('parado')
-  const [transcrever, setTranscrever] = useState(false)
-  const [falaFinal, setFalaFinal] = useState('')
   const [falaParcial, setFalaParcial] = useState('')
 
   const ctxRef = useRef(null)
@@ -49,7 +47,6 @@ export default function Ambiente({ aoVoltar }) {
   const recRef = useRef(null)
   const vozRef = useRef(null)
   const querVozRef = useRef(false)
-  const ultimaFalaRef = useRef('')
 
   useEffect(() => {
     limiarRef.current = LIMIARES[sensibilidade]
@@ -71,14 +68,27 @@ export default function Ambiente({ aoVoltar }) {
 
     return () => {
       vivo = false
-      desligar()
+      desligarSons()
+      pararVoz()
     }
   }, [])
+
+  function registrar(texto, detalhe) {
+    setEventos((antes) =>
+      [{ id: Date.now() + Math.random(), hora: agora(), texto, detalhe }, ...antes].slice(0, 15)
+    )
+    setAlerta(true)
+    if (navigator.vibrate) navigator.vibrate([300, 120, 300])
+    setTimeout(() => setAlerta(false), 2500)
+  }
+
+  /* ---------- modo fala ---------- */
 
   function pararVoz() {
     querVozRef.current = false
     if (vozRef.current) {
       vozRef.current.onend = null
+      vozRef.current.onresult = null
       vozRef.current.abort()
       vozRef.current = null
     }
@@ -86,7 +96,12 @@ export default function Ambiente({ aoVoltar }) {
   }
 
   function comecarVoz() {
-    if (!Reconhecimento || vozRef.current) return
+    if (!Reconhecimento) {
+      setErro('Este navegador não escreve o que as pessoas falam. Use o Chrome.')
+      return
+    }
+    if (vozRef.current) return
+
     querVozRef.current = true
 
     const voz = new Reconhecimento()
@@ -102,14 +117,17 @@ export default function Ambiente({ aoVoltar }) {
         if (e.results[i].isFinal) finais += trecho
         else parcial += trecho
       }
-      if (finais.trim()) {
-        ultimaFalaRef.current = finais.trim()
-        setFalaFinal(finais.trim())
-      }
+      if (finais.trim()) registrar(finais.trim(), 'fala')
       setFalaParcial(parcial)
     }
 
-    voz.onerror = () => {}
+    voz.onerror = (e) => {
+      if (e && (e.error === 'not-allowed' || e.error === 'service-not-allowed')) {
+        querVozRef.current = false
+        setErro('Permissão do microfone negada. Libere nas configurações do navegador.')
+        setModo('parado')
+      }
+    }
 
     voz.onend = () => {
       vozRef.current = null
@@ -128,25 +146,13 @@ export default function Ambiente({ aoVoltar }) {
     }
   }
 
-  function alternarTranscricao() {
-    const novo = !transcrever
-    setTranscrever(novo)
-    if (!novo) {
-      pararVoz()
-      setFalaFinal('')
-      ultimaFalaRef.current = ''
-    } else if (ligado) {
-      comecarVoz()
-    }
-  }
+  /* ---------- modo sons ---------- */
 
-  function desligar() {
+  function desligarSons() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
     rafRef.current = null
     capturaRef.current = null
     melhorRef.current = null
-
-    pararVoz()
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop())
@@ -156,18 +162,7 @@ export default function Ambiente({ aoVoltar }) {
       ctxRef.current.close().catch(() => {})
       ctxRef.current = null
     }
-    setLigado(false)
     setNivel(0)
-    setAlerta(false)
-  }
-
-  function registrar(texto, detalhe) {
-    setEventos((antes) =>
-      [{ id: Date.now() + Math.random(), hora: agora(), texto, detalhe }, ...antes].slice(0, 15)
-    )
-    setAlerta(true)
-    if (navigator.vibrate) navigator.vibrate([300, 120, 300])
-    setTimeout(() => setAlerta(false), 2500)
   }
 
   function analisar() {
@@ -205,12 +200,10 @@ export default function Ambiente({ aoVoltar }) {
     return m
   }
 
-  async function ligar() {
-    setErro('')
-
+  async function ligarSons() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setErro('Este navegador não dá acesso ao microfone.')
-      return
+      return false
     }
 
     let stream
@@ -222,7 +215,7 @@ export default function Ambiente({ aoVoltar }) {
       } else {
         setErro('Não foi possível abrir o microfone.')
       }
-      return
+      return false
     }
 
     const Contexto = window.AudioContext || window.webkitAudioContext
@@ -249,9 +242,6 @@ export default function Ambiente({ aoVoltar }) {
     ctxRef.current = ctx
     capturaRef.current = captura
     melhorRef.current = null
-    setLigado(true)
-
-    if (transcrever) comecarVoz()
 
     const dados = new Uint8Array(medidor.fftSize)
 
@@ -296,19 +286,11 @@ export default function Ambiente({ aoVoltar }) {
         ultimoAlertaRef.current = instante
 
         if (bom && bom.nota >= CONFIANCA_MINIMA) {
-          const ehVoz = bom.texto.indexOf('voz') === 0
-          const dito = ultimaFalaRef.current
-
-          if (ehVoz && transcrever && dito) {
-            registrar('Alguém falou: "' + dito + '"', 'certeza ' + porcento(bom.nota))
-            ultimaFalaRef.current = ''
-          } else {
-            registrar(
-              'Possível ' + bom.texto,
-              'certeza ' + porcento(bom.nota) +
-                ' · modelo apontou ' + bom.geral + ' (' + porcento(bom.notaGeral) + ')'
-            )
-          }
+          registrar(
+            'Possível ' + bom.texto,
+            'certeza ' + porcento(bom.nota) +
+              ' · modelo apontou ' + bom.geral + ' (' + porcento(bom.notaGeral) + ')'
+          )
           melhorRef.current = null
         } else {
           registrar('Som forte, tipo não identificado', '')
@@ -319,6 +301,34 @@ export default function Ambiente({ aoVoltar }) {
     }
 
     medir()
+    return true
+  }
+
+  /* ---------- troca de modo ---------- */
+
+  async function irPara(novo) {
+    setErro('')
+
+    if (novo === modo) {
+      desligarSons()
+      pararVoz()
+      setModo('parado')
+      return
+    }
+
+    desligarSons()
+    pararVoz()
+
+    if (novo === 'sons') {
+      const deu = await ligarSons()
+      setModo(deu ? 'sons' : 'parado')
+      return
+    }
+
+    if (novo === 'fala') {
+      setModo('fala')
+      comecarVoz()
+    }
   }
 
   return (
@@ -330,113 +340,116 @@ export default function Ambiente({ aoVoltar }) {
       <div className="bloco">
         <h2 className="form-titulo">Sentir o ambiente</h2>
 
-        {ligado && (
-          <p className="indicador">🎤 Microfone ligado — escutando agora</p>
+        {modo !== 'parado' && (
+          <p className="indicador">
+            {modo === 'sons'
+              ? '🎤 Microfone ligado — escutando os sons'
+              : '🎤 Microfone ligado — escrevendo as falas'}
+          </p>
         )}
 
         {alerta && (
           <div className="alerta-forte">
             <span className="alerta-icone">⚠️</span>
-            <strong>Som detectado perto de você</strong>
+            <strong>
+              {modo === 'fala' ? 'Alguém falou' : 'Som detectado perto de você'}
+            </strong>
           </div>
         )}
 
-        {transcrever && ligado && (
+        {modo === 'fala' && (
           <div className="transcricao">
-            {!falaFinal && !falaParcial && (
+            {!falaParcial && eventos.length === 0 && (
               <p className="transcricao-vazia">
-                Escutando. Se alguém falar perto do celular, o texto aparece aqui.
+                Escutando. Peça para a pessoa falar perto do celular.
               </p>
             )}
-            {falaFinal && <p className="transcricao-texto">{falaFinal}</p>}
             {falaParcial && <p className="transcricao-parcial">{falaParcial}</p>}
+            {!falaParcial && eventos[0] && eventos[0].detalhe === 'fala' && (
+              <p className="transcricao-texto">{eventos[0].texto}</p>
+            )}
           </div>
         )}
 
-        <div className="medidor">
-          <div className="medidor-barra">
-            <div
-              className={nivel >= LIMIARES[sensibilidade] ? 'medidor-nivel alto' : 'medidor-nivel'}
-              style={{ width: nivel + '%' }}
-            />
-          </div>
-          <p className="medidor-texto">
-            {ligado ? 'Som agora: ' + nivel : 'Desligado'}
-          </p>
-        </div>
-
-        {modelo === 'falhou' ? (
-          <p className="erro">
-            O reconhecedor de sons não carregou. O aviso de som forte continua
-            funcionando, mas sem dizer o tipo.
-          </p>
-        ) : (
-          modelo !== 'parado' && (
-            <div className="instrucao">
-              <p className="aviso-linha">
-                {modelo === 'baixando'
-                  ? 'Baixando o reconhecedor de sons. Pode demorar na primeira vez.'
-                  : 'Reconhecedor de sons pronto.'}
-              </p>
+        {modo === 'sons' && (
+          <div className="medidor">
+            <div className="medidor-barra">
+              <div
+                className={nivel >= LIMIARES[sensibilidade] ? 'medidor-nivel alto' : 'medidor-nivel'}
+                style={{ width: nivel + '%' }}
+              />
             </div>
-          )
+            <p className="medidor-texto">Som agora: {nivel}</p>
+          </div>
         )}
 
         {erro && <p className="erro">{erro}</p>}
 
-        {ligado ? (
-          <button className="principal perigo" onClick={desligar}>
-            Parar de escutar
-          </button>
-        ) : (
-          <button className="principal" onClick={ligar}>
-            Começar a escutar
-          </button>
-        )}
-
         <button
-          className={transcrever ? 'principal' : 'secundario'}
-          onClick={alternarTranscricao}
-          disabled={!Reconhecimento}
+          className={modo === 'sons' ? 'principal perigo' : 'principal'}
+          onClick={() => irPara('sons')}
         >
-          {transcrever
-            ? '✅ Escrevendo o que falam'
-            : '📝 Escrever o que as pessoas falam'}
+          {modo === 'sons' ? 'Parar' : '👁️ Detectar sons do ambiente'}
         </button>
 
-        {transcrever && (
+        <button
+          className={modo === 'fala' ? 'principal perigo' : 'secundario'}
+          onClick={() => irPara('fala')}
+          disabled={!Reconhecimento}
+        >
+          {modo === 'fala' ? 'Parar' : '💬 Escutar as pessoas falando'}
+        </button>
+
+        {modo === 'sons' && modelo === 'falhou' && (
+          <p className="erro">
+            O reconhecedor de sons não carregou. O aviso de som forte continua
+            funcionando, mas sem dizer o tipo.
+          </p>
+        )}
+
+        {modo === 'sons' && modelo === 'baixando' && (
           <div className="instrucao">
             <p className="aviso-linha">
-              Com esta opção ligada, o áudio é enviado ao serviço de voz do
-              navegador (Google) para virar texto. A detecção dos outros sons
-              continua acontecendo só dentro do celular.
+              Baixando o reconhecedor de sons. Pode demorar na primeira vez.
             </p>
           </div>
         )}
 
-        <div className="campo">
-          <span className="campo-nome">Sensibilidade do alerta</span>
-          <div className="abas">
-            <button
-              className={sensibilidade === 'baixa' ? 'aba aba-ativa' : 'aba'}
-              onClick={() => setSensibilidade('baixa')}
-            >
-              Baixa
-            </button>
-            <button
-              className={sensibilidade === 'media' ? 'aba aba-ativa' : 'aba'}
-              onClick={() => setSensibilidade('media')}
-            >
-              Média
-            </button>
-            <button
-              className={sensibilidade === 'alta' ? 'aba aba-ativa' : 'aba'}
-              onClick={() => setSensibilidade('alta')}
-            >
-              Alta
-            </button>
+        {modo === 'fala' && (
+          <div className="instrucao">
+            <p className="aviso-linha">
+              Neste modo o áudio é enviado ao serviço de voz do navegador (Google)
+              para virar texto. A detecção de sirene, campainha e outros sons fica
+              pausada enquanto ele estiver ligado.
+            </p>
           </div>
-        </div>
+        )}
+
+        {modo === 'sons' && (
+          <div className="campo">
+            <span className="campo-nome">Sensibilidade do alerta</span>
+            <div className="abas">
+              <button
+                className={sensibilidade === 'baixa' ? 'aba aba-ativa' : 'aba'}
+                onClick={() => setSensibilidade('baixa')}
+              >
+                Baixa
+              </button>
+              <button
+                className={sensibilidade === 'media' ? 'aba aba-ativa' : 'aba'}
+                onClick={() => setSensibilidade('media')}
+              >
+                Média
+              </button>
+              <button
+                className={sensibilidade === 'alta' ? 'aba aba-ativa' : 'aba'}
+                onClick={() => setSensibilidade('alta')}
+              >
+                Alta
+              </button>
+            </div>
+          </div>
+        )}
 
         {eventos.length > 0 && (
           <section className="grupo">
@@ -444,8 +457,12 @@ export default function Ambiente({ aoVoltar }) {
             {eventos.map((e) => (
               <div key={e.id} className="evento">
                 <strong className="evento-hora">{e.hora}</strong>
-                <span className="evento-texto">{e.texto}</span>
-                {e.detalhe && <span className="evento-detalhe">{e.detalhe}</span>}
+                <span className="evento-texto">
+                  {e.detalhe === 'fala' ? '💬 ' + e.texto : e.texto}
+                </span>
+                {e.detalhe && e.detalhe !== 'fala' && (
+                  <span className="evento-detalhe">{e.detalhe}</span>
+                )}
               </div>
             ))}
           </section>
@@ -453,11 +470,10 @@ export default function Ambiente({ aoVoltar }) {
       </div>
 
       <footer className="rodape">
-        Os sons do ambiente são analisados dentro do seu celular e nada é gravado.
-        A escrita da fala, quando ligada, usa o serviço de voz do navegador.
-        O tipo de som é uma possibilidade, não uma certeza.
+        Um modo por vez, porque os dois disputam o microfone.
+        Os sons do ambiente são analisados dentro do celular e nada é gravado.
         Só funciona com esta tela aberta.
       </footer>
     </div>
   )
-                }
+}
