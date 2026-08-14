@@ -8,6 +8,13 @@ const Reconhecimento =
 const temVozFalada =
   typeof window !== 'undefined' && 'speechSynthesis' in window
 
+function ehContinuacao(nova, velha) {
+  if (!velha) return false
+  const a = nova.toLowerCase()
+  const b = velha.toLowerCase()
+  return a.startsWith(b) || b.startsWith(a)
+}
+
 function traduzirErroVoz(codigo) {
   if (codigo === 'not-allowed' || codigo === 'service-not-allowed')
     return 'Permissão do microfone negada. Libere o microfone nas configurações do navegador.'
@@ -22,10 +29,11 @@ export default function Falar({ aoVoltar }) {
   const [aba, setAba] = useState('ouvir')
 
   const [ouvindo, setOuvindo] = useState(false)
-  const [textoFinal, setTextoFinal] = useState('')
-  const [textoParcial, setTextoParcial] = useState('')
+  const [frases, setFrases] = useState([])
+  const [parcial, setParcial] = useState('')
   const [erroOuvir, setErroOuvir] = useState('')
   const recRef = useRef(null)
+  const ultimaRef = useRef('')
 
   const [paraFalar, setParaFalar] = useState('')
   const [falando, setFalando] = useState(false)
@@ -37,6 +45,26 @@ export default function Falar({ aoVoltar }) {
       if (temVozFalada) window.speechSynthesis.cancel()
     }
   }, [])
+
+  function guardarFrase(bruto) {
+    const limpo = bruto.trim()
+    if (!limpo) return
+
+    const anterior = ultimaRef.current
+
+    if (ehContinuacao(limpo, anterior)) {
+      const maior = limpo.length >= anterior.length ? limpo : anterior
+      ultimaRef.current = maior
+      setFrases((antes) => {
+        if (antes.length === 0) return [maior]
+        return [...antes.slice(0, -1), maior]
+      })
+      return
+    }
+
+    ultimaRef.current = limpo
+    setFrases((antes) => [...antes, limpo])
+  }
 
   function comecarOuvir() {
     setErroOuvir('')
@@ -51,15 +79,15 @@ export default function Falar({ aoVoltar }) {
     rec.interimResults = true
 
     rec.onresult = (e) => {
-      let finais = ''
-      let parcial = ''
+      let emAndamento = ''
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        const trecho = e.results[i][0].transcript
-        if (e.results[i].isFinal) finais += trecho
-        else parcial += trecho
+        if (e.results[i].isFinal) {
+          guardarFrase(e.results[i][0].transcript)
+        } else {
+          emAndamento += e.results[i][0].transcript
+        }
       }
-      if (finais) setTextoFinal((antes) => (antes + ' ' + finais).trim())
-      setTextoParcial(parcial)
+      setParcial(emAndamento)
     }
 
     rec.onerror = (e) => {
@@ -68,7 +96,7 @@ export default function Falar({ aoVoltar }) {
 
     rec.onend = () => {
       setOuvindo(false)
-      setTextoParcial('')
+      setParcial('')
     }
 
     recRef.current = rec
@@ -82,9 +110,10 @@ export default function Falar({ aoVoltar }) {
   }
 
   function limpar() {
-    setTextoFinal('')
-    setTextoParcial('')
+    setFrases([])
+    setParcial('')
     setErroOuvir('')
+    ultimaRef.current = ''
   }
 
   function falar() {
@@ -143,15 +172,24 @@ export default function Falar({ aoVoltar }) {
             <p className="indicador">🎤 Microfone ligado — ouvindo agora</p>
           )}
 
+          <p className="dica-libras">
+            🤟 Para ver em Libras: toque no texto abaixo e depois no botão azul
+            da mãozinha.
+          </p>
+
           <div className="transcricao">
-            {!textoFinal && !textoParcial && (
+            {frases.length === 0 && !parcial && (
               <p className="transcricao-vazia">
                 Toque em Começar a ouvir e peça para a pessoa falar.
                 O que ela disser aparece aqui.
               </p>
             )}
-            {textoFinal && <p className="transcricao-texto">{textoFinal}</p>}
-            {textoParcial && <p className="transcricao-parcial">{textoParcial}</p>}
+            {frases.map((f, i) => (
+              <p key={i} className="transcricao-texto frase">
+                {f}
+              </p>
+            ))}
+            {parcial && <p className="transcricao-parcial">{parcial}</p>}
           </div>
 
           {erroOuvir && <p className="erro">{erroOuvir}</p>}
@@ -166,7 +204,7 @@ export default function Falar({ aoVoltar }) {
             </button>
           )}
 
-          {(textoFinal || textoParcial) && (
+          {(frases.length > 0 || parcial) && (
             <button className="secundario" onClick={limpar}>
               Limpar
             </button>
@@ -204,7 +242,7 @@ export default function Falar({ aoVoltar }) {
 
       <footer className="rodape">
         Esta tela usa voz e texto em português.
-        A tradução para Libras é a Fase 3.
+        Cada fala nova entra em uma linha separada.
       </footer>
     </div>
   )
