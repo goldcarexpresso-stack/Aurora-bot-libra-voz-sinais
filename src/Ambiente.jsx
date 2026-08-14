@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { AMOSTRAS, TAXA, carregarReconhecedor, reconhecer } from './sons.js'
 
 const LIMIARES = { baixa: 60, media: 42, alta: 28 }
 const ESPERA_ENTRE_ALERTAS = 3000
+const CONFIANCA_MINIMA = 0.35
 
 function agora() {
   return new Date().toLocaleTimeString('pt-BR', {
@@ -18,25 +20,52 @@ export default function Ambiente({ aoVoltar }) {
   const [eventos, setEventos] = useState([])
   const [alerta, setAlerta] = useState(false)
   const [erro, setErro] = useState('')
+  const [modelo, setModelo] = useState('parado')
 
   const ctxRef = useRef(null)
   const streamRef = useRef(null)
+  const noRef = useRef(null)
   const rafRef = useRef(null)
   const ultimoRef = useRef(0)
   const limiarRef = useRef(LIMIARES.media)
+  const bufferRef = useRef(new Float32Array(AMOSTRAS))
+  const posRef = useRef(0)
+  const reconhecedorRef = useRef(null)
+  const ocupadoRef = useRef(false)
 
   useEffect(() => {
     limiarRef.current = LIMIARES[sensibilidade]
   }, [sensibilidade])
 
   useEffect(() => {
-    return () => desligar()
+    let vivo = true
+    setModelo('baixando')
+
+    carregarReconhecedor()
+      .then((r) => {
+        if (!vivo) return
+        reconhecedorRef.current = r
+        setModelo('pronto')
+      })
+      .catch(() => {
+        if (vivo) setModelo('falhou')
+      })
+
+    return () => {
+      vivo = false
+      desligar()
+    }
   }, [])
 
   function desligar() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
     rafRef.current = null
 
+    if (noRef.current) {
+      noRef.current.disconnect()
+      noRef.current.onaudioprocess = null
+      noRef.current = null
+    }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop())
       streamRef.current = null
@@ -45,9 +74,37 @@ export default function Ambiente({ aoVoltar }) {
       ctxRef.current.close().catch(() => {})
       ctxRef.current = null
     }
+    posRef.current = 0
     setLigado(false)
     setNivel(0)
     setAlerta(false)
+  }
+
+  function registrar(texto, forca) {
+    const instante = Date.now()
+    setEventos((antes) =>
+      [{ id: instante + Math.random(), hora: agora(), texto, forca }, ...antes].slice(0, 15)
+    )
+    setAlerta(true)
+    if (navigator.vibrate) navigator.vibrate([300, 120, 300])
+    setTimeout(() => setAlerta(false), 2500)
+  }
+
+  async function analisar() {
+    if (ocupadoRef.current || !reconhecedorRef.current) return
+    ocupadoRef.current = true
+    try {
+      const copia = bufferRef.current.slice(0)
+      const achado = reconhecer(reconhecedorRef.current, copia)
+      if (achado && achado.nota >= CONFIANCA_MINIMA) {
+        return achado.texto
+      }
+    } catch {
+      // se falhar, o alerta de som forte continua funcionando
+    } finally {
+      ocupadoRef.current = false
+    }
+    return null
   }
 
   async function ligar() {
@@ -71,15 +128,33 @@ export default function Ambiente({ aoVoltar }) {
     }
 
     const Contexto = window.AudioContext || window.webkitAudioContext
-    const ctx = new Contexto()
+    const ctx = new Contexto({ sampleRate: TAXA })
     const fonte = ctx.createMediaStreamSource(stream)
+
     const analisador = ctx.createAnalyser()
     analisador.fftSize = 1024
-
     fonte.connect(analisador)
+
+    const coletor = ctx.createScriptProcessor(4096, 1, 1)
+    const mudo = ctx.createGain()
+    mudo.gain.value = 0
+
+    coletor.onaudioprocess = (evento) => {
+      const dados = evento.inputBuffer.getChannelData(0)
+      const buffer = bufferRef.current
+      for (let i = 0; i < dados.length; i++) {
+        buffer[posRef.current] = dados[i]
+        posRef.current = (posRef.current + 1) % AMOSTRAS
+      }
+    }
+
+    fonte.connect(coletor)
+    coletor.connect(mudo)
+    mudo.connect(ctx.destination)
 
     streamRef.current = stream
     ctxRef.current = ctx
+    noRef.current = coletor
     setLigado(true)
 
     const dados = new Uint8Array(analisador.fftSize)
@@ -101,12 +176,9 @@ export default function Ambiente({ aoVoltar }) {
         const instante = Date.now()
         if (instante - ultimoRef.current > ESPERA_ENTRE_ALERTAS) {
           ultimoRef.current = instante
-          setAlerta(true)
-          setEventos((antes) =>
-            [{ id: instante, hora: agora(), forca: valor }, ...antes].slice(0, 12)
-          )
-          if (navigator.vibrate) navigator.vibrate([300, 120, 300])
-          setTimeout(() => setAlerta(false), 2500)
+          analisar().then((tipo) => {
+            registrar(tipo ? 'Possível ' + tipo : 'Som forte, tipo não identificado', valor)
+          })
         }
       }
 
@@ -114,6 +186,14 @@ export default function Ambiente({ aoVoltar }) {
     }
 
     medir()
+  }
+
+  const recadoModelo = {
+    baixando: 'Baixando o reconhecedor de sons. Pode demorar na primeira vez.',
+    pronto: 'Reconhecedor de sons pronto.',
+    falhou:
+      'O reconhecedor de sons não carregou. O aviso de som forte continua funcionando, mas sem dizer o tipo.',
+    parado: '',
   }
 
   return (
@@ -132,7 +212,7 @@ export default function Ambiente({ aoVoltar }) {
         {alerta && (
           <div className="alerta-forte">
             <span className="alerta-icone">⚠️</span>
-            <strong>Som forte detectado perto de você</strong>
+            <strong>Som detectado perto de você</strong>
           </div>
         )}
 
@@ -147,6 +227,16 @@ export default function Ambiente({ aoVoltar }) {
             {ligado ? 'Som agora: ' + nivel : 'Desligado'}
           </p>
         </div>
+
+        {modelo === 'falhou' ? (
+          <p className="erro">{recadoModelo.falhou}</p>
+        ) : (
+          modelo !== 'parado' && (
+            <div className="instrucao">
+              <p className="aviso-linha">{recadoModelo[modelo]}</p>
+            </div>
+          )
+        )}
 
         {erro && <p className="erro">{erro}</p>}
 
@@ -190,9 +280,7 @@ export default function Ambiente({ aoVoltar }) {
             {eventos.map((e) => (
               <div key={e.id} className="evento">
                 <strong className="evento-hora">{e.hora}</strong>
-                <span className="evento-texto">
-                  Som forte detectado (força {e.forca})
-                </span>
+                <span className="evento-texto">{e.texto}</span>
               </div>
             ))}
           </section>
@@ -201,8 +289,8 @@ export default function Ambiente({ aoVoltar }) {
 
       <footer className="rodape">
         O som é analisado dentro do seu celular. Nada é gravado nem enviado.
-        Esta versão avisa que houve um som forte, mas ainda não sabe dizer
-        que tipo de som foi. Só funciona com esta tela aberta.
+        O tipo de som é uma possibilidade, não uma certeza.
+        Só funciona com esta tela aberta.
       </footer>
     </div>
   )
