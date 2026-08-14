@@ -6,6 +6,7 @@ const MAPA_URL =
 
 export const TAXA = 16000
 export const AMOSTRAS = 15600
+const CLASSES = 521
 
 const NOMES_PT = {
   'Siren': 'sirene',
@@ -95,24 +96,55 @@ export async function carregarReconhecedor() {
   return cache
 }
 
-export function reconhecer(reconhecedor, onda) {
-  const { modelo, interessantes } = reconhecedor
+export function reconhecer(rec, onda) {
+  const { modelo, nomes, interessantes } = rec
 
-  return tf.tidy(() => {
+  let saidas
+  try {
     const entrada = tf.tensor1d(onda)
-    const saida = modelo.execute(entrada)
-    const notas = Array.isArray(saida) ? saida[0] : saida
-    const porClasse = notas.max(0)
-    const valores = porClasse.dataSync()
+    const bruto = modelo.execute(entrada)
+    entrada.dispose()
+    saidas = Array.isArray(bruto) ? bruto : [bruto]
+  } catch (e) {
+    return { erro: 'O modelo não conseguiu processar o som.' }
+  }
 
-    let melhor = null
-    for (const item of interessantes) {
-      const nota = valores[item.indice]
-      if (!melhor || nota > melhor.nota) {
-        melhor = { texto: item.texto, nota }
-      }
+  const formatos = saidas.map((t) => t.shape.join('x')).join('  ')
+  const notasT = saidas.find((t) => t.shape[t.shape.length - 1] === CLASSES)
+
+  if (!notasT) {
+    saidas.forEach((t) => t.dispose())
+    return { erro: 'Resultado inesperado do modelo (' + formatos + ')' }
+  }
+
+  let valores
+  if (notasT.rank > 1) {
+    const maximos = notasT.max(0)
+    valores = maximos.dataSync()
+    maximos.dispose()
+  } else {
+    valores = notasT.dataSync()
+  }
+  saidas.forEach((t) => t.dispose())
+
+  let melhor = null
+  for (const item of interessantes) {
+    const nota = valores[item.indice]
+    if (melhor === null || nota > melhor.nota) {
+      melhor = { texto: item.texto, nota }
     }
+  }
 
-    return melhor
-  })
+  let topo = 0
+  for (let i = 1; i < valores.length; i++) {
+    if (valores[i] > valores[topo]) topo = i
+  }
+
+  return {
+    texto: melhor ? melhor.texto : null,
+    nota: melhor ? melhor.nota : 0,
+    geral: nomes[topo],
+    notaGeral: valores[topo],
+    formatos,
+  }
 }
