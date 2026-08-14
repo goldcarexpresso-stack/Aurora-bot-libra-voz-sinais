@@ -3,12 +3,13 @@ import { supabase, conectado } from './supabase.js'
 import Login from './Login.jsx'
 import Perfil from './Perfil.jsx'
 import Falar from './Falar.jsx'
+import Contatos from './Contatos.jsx'
 
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras', fase: 'Fase 3' },
-  { id: 'falar', icone: '🎤', titulo: 'Falar', pronto: true },
+  { id: 'falar', icone: '🎤', titulo: 'Falar' },
   { id: 'conversas', icone: '💬', titulo: 'Minhas conversas', fase: 'Fase 2' },
-  { id: 'contatos', icone: '👥', titulo: 'Contatos', fase: 'Fase 2' },
+  { id: 'contatos', icone: '👥', titulo: 'Contatos' },
   { id: 'ambiente', icone: '👁️', titulo: 'Sentir o ambiente', fase: 'Fase 4' },
   { id: 'sos', icone: '🚨', titulo: 'SOS', fase: 'Fase 5' },
   { id: 'confianca', icone: '🔐', titulo: 'Contatos de confiança', fase: 'Fase 5' },
@@ -76,6 +77,10 @@ export default function App() {
     return <Falar aoVoltar={() => setAberto(null)} />
   }
 
+  if (aberto && aberto.id === 'contatos') {
+    return <Contatos sessao={sessao} aoVoltar={() => setAberto(null)} />
+  }
+
   if (aberto) {
     return (
       <div className="tela">
@@ -118,7 +123,7 @@ export default function App() {
       </nav>
 
       <footer className="rodape">
-        Fase 2 — voz funcionando.
+        Fase 2 — voz e contatos funcionando.
         As demais funções ainda não foram construídas.
       </footer>
     </div>
