@@ -393,3 +393,48 @@ body {
 .grupo {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.grupo-titulo {
+  font-size: 18px;
+  font-weight: 800;
+  color: #7FD1CC;
+}
+
+.pessoa {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 18px;
+}
+
+.pessoa-nome {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.pessoa-id {
+  display: block;
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #7FD1CC;
+}
+
+.pessoa-botoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pessoa-botoes .sair {
+  margin-top: 0;
+}
