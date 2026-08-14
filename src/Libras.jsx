@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
+const ENDERECO_APP = 'https://vlibras.gov.br/app'
+
 const Reconhecimento =
   typeof window !== 'undefined'
     ? window.SpeechRecognition || window.webkitSpeechRecognition
@@ -9,23 +11,45 @@ export default function Libras({ aoVoltar }) {
   const [texto, setTexto] = useState('')
   const [ouvindo, setOuvindo] = useState(false)
   const [erroVoz, setErroVoz] = useState('')
-  const [avatarPronto, setAvatarPronto] = useState(false)
+  const [situacao, setSituacao] = useState('procurando')
   const recRef = useRef(null)
 
   useEffect(() => {
-    const tentativa = setInterval(() => {
-      const botao = document.querySelector('[vw-access-button]')
-      if (botao) {
-        setAvatarPronto(true)
-        clearInterval(tentativa)
-      }
-    }, 800)
+    let tentativas = 0
+    let jaIniciou = false
 
-    const desistir = setTimeout(() => clearInterval(tentativa), 20000)
+    const relogio = setInterval(() => {
+      tentativas++
+
+      const wrapper = document.querySelector('[vw-plugin-wrapper]')
+      const funcionando = wrapper && wrapper.children.length > 1
+
+      if (funcionando) {
+        setSituacao('pronto')
+        clearInterval(relogio)
+        return
+      }
+
+      if (window.VLibras && window.VLibras.Widget && !jaIniciou) {
+        jaIniciou = true
+        try {
+          new window.VLibras.Widget(ENDERECO_APP)
+          setSituacao('iniciando')
+        } catch {
+          setSituacao('falhou')
+          clearInterval(relogio)
+        }
+        return
+      }
+
+      if (tentativas > 25) {
+        setSituacao(window.VLibras ? 'nao-iniciou' : 'sem-script')
+        clearInterval(relogio)
+      }
+    }, 1000)
 
     return () => {
-      clearInterval(tentativa)
-      clearTimeout(desistir)
+      clearInterval(relogio)
       if (recRef.current) recRef.current.abort()
     }
   }, [])
@@ -58,6 +82,23 @@ export default function Libras({ aoVoltar }) {
     if (recRef.current) recRef.current.stop()
     setOuvindo(false)
   }
+
+  const recados = {
+    procurando: 'Procurando o avatar do VLibras...',
+    iniciando: 'Ligando o avatar. Isso pode demorar alguns segundos.',
+    pronto:
+      'Avatar pronto. Toque no botão azul com a mão, no canto da tela, e depois no texto grande acima.',
+    'sem-script':
+      'O programa do VLibras não foi baixado. Pode ser a conexão ou o site do governo estar fora do ar.',
+    'nao-iniciou':
+      'O programa do VLibras baixou, mas o avatar não ligou neste aparelho.',
+    falhou: 'Deu erro ao ligar o avatar do VLibras.',
+  }
+
+  const deuRuim =
+    situacao === 'sem-script' ||
+    situacao === 'nao-iniciou' ||
+    situacao === 'falhou'
 
   return (
     <div className="tela">
@@ -97,20 +138,13 @@ export default function Libras({ aoVoltar }) {
           </div>
         )}
 
-        <div className="instrucao">
-          {avatarPronto ? (
-            <p className="aviso-linha">
-              Toque no botão azul com a mão, no canto da tela.
-              Depois toque no texto grande acima e o avatar traduz.
-            </p>
-          ) : (
-            <p className="aviso-linha">
-              Carregando o avatar do VLibras. Se o botão azul com a mão
-              não aparecer no canto da tela em alguns segundos,
-              confira sua conexão.
-            </p>
-          )}
-        </div>
+        {deuRuim ? (
+          <p className="erro">{recados[situacao]}</p>
+        ) : (
+          <div className="instrucao">
+            <p className="aviso-linha">{recados[situacao]}</p>
+          </div>
+        )}
       </div>
 
       <footer className="rodape">
