@@ -5,9 +5,10 @@ import Perfil from './Perfil.jsx'
 import Falar from './Falar.jsx'
 import Contatos from './Contatos.jsx'
 import Conversas from './Conversas.jsx'
+import Libras from './Libras.jsx'
 
 const MENU = [
-  { id: 'libras', icone: '🤟', titulo: 'Falar em Libras', fase: 'Fase 3' },
+  { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
   { id: 'conversas', icone: '💬', titulo: 'Minhas conversas' },
   { id: 'contatos', icone: '👥', titulo: 'Contatos' },
@@ -74,6 +75,10 @@ export default function App() {
     return <Perfil sessao={sessao} aoVoltar={() => setNoPerfil(false)} />
   }
 
+  if (aberto && aberto.id === 'libras') {
+    return <Libras aoVoltar={() => setAberto(null)} />
+  }
+
   if (aberto && aberto.id === 'falar') {
     return <Falar aoVoltar={() => setAberto(null)} />
   }
@@ -128,8 +133,8 @@ export default function App() {
       </nav>
 
       <footer className="rodape">
-        Fase 2 — voz, contatos e conversas funcionando.
-        As demais funções ainda não foram construídas.
+        Fase 3 — português para Libras pelo VLibras.
+        A leitura de sinais pela câmera ainda não existe.
       </footer>
     </div>
   )
