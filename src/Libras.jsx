@@ -52,19 +52,34 @@ export default function Libras({ aoVoltar }) {
   }
 
   return (
-    <div className="tela">
-      <button className="voltar" onClick={aoVoltar}>
-        ← Voltar
-      </button>
+    <div className="tela tela-libras">
+      <div className="libras-topo">
+        <button className="voltar" onClick={aoVoltar}>
+          ←
+        </button>
+        <h2 className="libras-titulo">Português → Libras</h2>
+      </div>
+
+      {texto && (
+        <div className="para-traduzir">
+          <p className="transcricao-texto">{texto}</p>
+        </div>
+      )}
 
       <div className="bloco">
-        <h2 className="form-titulo">Português → Libras</h2>
+        {texto && (
+          <div className="instrucao">
+            <p className="aviso-linha">
+              Toque no botão azul com a mão e depois no texto acima.
+            </p>
+          </div>
+        )}
 
         <label className="campo">
           <span className="campo-nome">Escreva ou fale o que quer traduzir</span>
           <textarea
             className="campo-input area"
-            rows={4}
+            rows={3}
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
           />
@@ -84,22 +99,10 @@ export default function Libras({ aoVoltar }) {
         )}
 
         {texto && (
-          <>
-            <div className="para-traduzir">
-              <p className="transcricao-texto">{texto}</p>
-            </div>
-            <button className="secundario" onClick={limpar}>
-              Limpar
-            </button>
-          </>
+          <button className="secundario" onClick={limpar}>
+            Limpar
+          </button>
         )}
-
-        <div className="instrucao">
-          <p className="aviso-linha">
-            Para ver em Libras: toque no botão azul com a mão, na lateral
-            da tela, e depois toque no texto grande acima.
-          </p>
-        </div>
       </div>
 
       <footer className="rodape">
