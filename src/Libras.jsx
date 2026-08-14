@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 
-const ENDERECO_APP = 'https://vlibras.gov.br/app'
-
 const Reconhecimento =
   typeof window !== 'undefined'
     ? window.SpeechRecognition || window.webkitSpeechRecognition
@@ -11,45 +9,10 @@ export default function Libras({ aoVoltar }) {
   const [texto, setTexto] = useState('')
   const [ouvindo, setOuvindo] = useState(false)
   const [erroVoz, setErroVoz] = useState('')
-  const [situacao, setSituacao] = useState('procurando')
   const recRef = useRef(null)
 
   useEffect(() => {
-    let tentativas = 0
-    let jaIniciou = false
-
-    const relogio = setInterval(() => {
-      tentativas++
-
-      const wrapper = document.querySelector('[vw-plugin-wrapper]')
-      const funcionando = wrapper && wrapper.children.length > 1
-
-      if (funcionando) {
-        setSituacao('pronto')
-        clearInterval(relogio)
-        return
-      }
-
-      if (window.VLibras && window.VLibras.Widget && !jaIniciou) {
-        jaIniciou = true
-        try {
-          new window.VLibras.Widget(ENDERECO_APP)
-          setSituacao('iniciando')
-        } catch {
-          setSituacao('falhou')
-          clearInterval(relogio)
-        }
-        return
-      }
-
-      if (tentativas > 25) {
-        setSituacao(window.VLibras ? 'nao-iniciou' : 'sem-script')
-        clearInterval(relogio)
-      }
-    }, 1000)
-
     return () => {
-      clearInterval(relogio)
       if (recRef.current) recRef.current.abort()
     }
   }, [])
@@ -83,22 +46,10 @@ export default function Libras({ aoVoltar }) {
     setOuvindo(false)
   }
 
-  const recados = {
-    procurando: 'Procurando o avatar do VLibras...',
-    iniciando: 'Ligando o avatar. Isso pode demorar alguns segundos.',
-    pronto:
-      'Avatar pronto. Toque no botão azul com a mão, no canto da tela, e depois no texto grande acima.',
-    'sem-script':
-      'O programa do VLibras não foi baixado. Pode ser a conexão ou o site do governo estar fora do ar.',
-    'nao-iniciou':
-      'O programa do VLibras baixou, mas o avatar não ligou neste aparelho.',
-    falhou: 'Deu erro ao ligar o avatar do VLibras.',
+  function limpar() {
+    setTexto('')
+    setErroVoz('')
   }
-
-  const deuRuim =
-    situacao === 'sem-script' ||
-    situacao === 'nao-iniciou' ||
-    situacao === 'falhou'
 
   return (
     <div className="tela">
@@ -133,18 +84,22 @@ export default function Libras({ aoVoltar }) {
         )}
 
         {texto && (
-          <div className="para-traduzir">
-            <p className="transcricao-texto">{texto}</p>
-          </div>
+          <>
+            <div className="para-traduzir">
+              <p className="transcricao-texto">{texto}</p>
+            </div>
+            <button className="secundario" onClick={limpar}>
+              Limpar
+            </button>
+          </>
         )}
 
-        {deuRuim ? (
-          <p className="erro">{recados[situacao]}</p>
-        ) : (
-          <div className="instrucao">
-            <p className="aviso-linha">{recados[situacao]}</p>
-          </div>
-        )}
+        <div className="instrucao">
+          <p className="aviso-linha">
+            Para ver em Libras: toque no botão azul com a mão, na lateral
+            da tela, e depois toque no texto grande acima.
+          </p>
+        </div>
       </div>
 
       <footer className="rodape">
