@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 
-const ENDERECO_APP = 'https://vlibras.gov.br/app'
-const ENDERECO_SCRIPT = 'https://vlibras.gov.br/app/vlibras-plugin.js'
-
-let widgetCriado = false
-
 const Reconhecimento =
   typeof window !== 'undefined'
     ? window.SpeechRecognition || window.webkitSpeechRecognition
@@ -12,52 +7,25 @@ const Reconhecimento =
 
 export default function Libras({ aoVoltar }) {
   const [texto, setTexto] = useState('')
-  const [estado, setEstado] = useState('carregando')
   const [ouvindo, setOuvindo] = useState(false)
   const [erroVoz, setErroVoz] = useState('')
+  const [avatarPronto, setAvatarPronto] = useState(false)
   const recRef = useRef(null)
 
   useEffect(() => {
-    let ativo = true
-
-    function iniciar() {
-      if (!ativo) return
-      try {
-        if (window.VLibras && window.VLibras.Widget) {
-          if (!widgetCriado) {
-            new window.VLibras.Widget(ENDERECO_APP)
-            widgetCriado = true
-          }
-          setEstado('pronto')
-        } else {
-          setEstado('erro')
-        }
-      } catch {
-        setEstado('erro')
+    const tentativa = setInterval(() => {
+      const botao = document.querySelector('[vw-access-button]')
+      if (botao) {
+        setAvatarPronto(true)
+        clearInterval(tentativa)
       }
-    }
+    }, 800)
 
-    if (window.VLibras) {
-      iniciar()
-      return () => {
-        ativo = false
-      }
-    }
-
-    const script = document.createElement('script')
-    script.src = ENDERECO_SCRIPT
-    script.async = true
-    script.onload = iniciar
-    script.onerror = () => ativo && setEstado('erro')
-    document.body.appendChild(script)
+    const desistir = setTimeout(() => clearInterval(tentativa), 20000)
 
     return () => {
-      ativo = false
-    }
-  }, [])
-
-  useEffect(() => {
-    return () => {
+      clearInterval(tentativa)
+      clearTimeout(desistir)
       if (recRef.current) recRef.current.abort()
     }
   }, [])
@@ -129,25 +97,20 @@ export default function Libras({ aoVoltar }) {
           </div>
         )}
 
-        {estado === 'carregando' && (
-          <p className="aviso-linha">Carregando o avatar do VLibras...</p>
-        )}
-
-        {estado === 'erro' && (
-          <p className="erro">
-            O avatar do VLibras não carregou. Verifique sua conexão e
-            abra a tela de novo.
-          </p>
-        )}
-
-        {estado === 'pronto' && (
-          <div className="instrucao">
+        <div className="instrucao">
+          {avatarPronto ? (
             <p className="aviso-linha">
-              Toque no botão azul com a mão, no canto da tela. Depois toque
-              no texto acima para o avatar traduzir.
+              Toque no botão azul com a mão, no canto da tela.
+              Depois toque no texto grande acima e o avatar traduz.
             </p>
-          </div>
-        )}
+          ) : (
+            <p className="aviso-linha">
+              Carregando o avatar do VLibras. Se o botão azul com a mão
+              não aparecer no canto da tela em alguns segundos,
+              confira sua conexão.
+            </p>
+          )}
+        </div>
       </div>
 
       <footer className="rodape">
@@ -155,13 +118,6 @@ export default function Libras({ aoVoltar }) {
         É automática e pode errar em frases longas.
         A leitura de sinais pela câmera ainda não existe no aplicativo.
       </footer>
-
-      <div vw="true" className="enabled">
-        <div vw-access-button="true" className="active"></div>
-        <div vw-plugin-wrapper="true">
-          <div className="vw-plugin-top-wrapper"></div>
-        </div>
-      </div>
     </div>
   )
 }
