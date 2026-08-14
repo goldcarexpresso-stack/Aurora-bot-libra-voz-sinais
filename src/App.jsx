@@ -30,4 +30,107 @@ export default function App() {
     }
 
     supabase.auth.getSession().then(({ data }) => {
-      setSess
+      setSessao(data.session)
+      setCarregando(false)
+    })
+
+    const { data: escuta } = supabase.auth.onAuthStateChange((_evento, nova) => {
+      setSessao(nova)
+      setAberto(null)
+      setNoPerfil(false)
+    })
+
+    return () => escuta.subscription.unsubscribe()
+  }, [])
+
+  if (!conectado) {
+    return (
+      <div className="tela">
+        <div className="aviso">
+          <span className="aviso-icone">⚠️</span>
+          <h2>Sem conexão com o banco</h2>
+          <p className="aviso-texto">
+            As chaves do Supabase não chegaram até o aplicativo.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (carregando) {
+    return (
+      <div className="tela">
+        <div className="aviso">
+          <span className="aviso-icone">🌅</span>
+          <p className="aviso-texto">Carregando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!sessao) return <Login />
+
+  if (noPerfil) {
+    return <Perfil sessao={sessao} aoVoltar={() => setNoPerfil(false)} />
+  }
+
+  if (aberto && aberto.id === 'falar') {
+    return <Falar aoVoltar={() => setAberto(null)} />
+  }
+
+  if (aberto && aberto.id === 'contatos') {
+    return <Contatos sessao={sessao} aoVoltar={() => setAberto(null)} />
+  }
+
+  if (aberto && aberto.id === 'conversas') {
+    return <Conversas sessao={sessao} aoVoltar={() => setAberto(null)} />
+  }
+
+  if (aberto) {
+    return (
+      <div className="tela">
+        <button className="voltar" onClick={() => setAberto(null)}>
+          ← Voltar
+        </button>
+        <div className="aviso">
+          <span className="aviso-icone">{aberto.icone}</span>
+          <h2>{aberto.titulo}</h2>
+          <p className="aviso-texto">Esta função ainda não foi construída.</p>
+          <p className="aviso-fase">Prevista para a {aberto.fase}</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="tela">
+      <header className="topo">
+        <h1>AURORA</h1>
+        <p className="sub">A Luz que Traduz</p>
+      </header>
+
+      <nav className="menu">
+        {MENU.map((item) => (
+          <button
+            key={item.id}
+            className={item.id === 'sos' ? 'card card-sos' : 'card'}
+            onClick={() => setAberto(item)}
+          >
+            <span className="card-icone">{item.icone}</span>
+            <span className="card-titulo">{item.titulo}</span>
+          </button>
+        ))}
+
+        <button className="card" onClick={() => setNoPerfil(true)}>
+          <span className="card-icone">👤</span>
+          <span className="card-titulo">Meu perfil</span>
+        </button>
+      </nav>
+
+      <footer className="rodape">
+        Fase 2 — voz, contatos e conversas funcionando.
+        As demais funções ainda não foram construídas.
+      </footer>
+    </div>
+  )
+}
