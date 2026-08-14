@@ -8,6 +8,8 @@ const CONFIANCA_SOZINHA = 0.5
 const INTERVALO_ANALISE = 700
 const VALIDADE = 2500
 const JANELA = 16384
+const GUARDA_FALAS = 'aurora_falas'
+const GUARDA_DISCRETO = 'aurora_discreto'
 
 const Reconhecimento =
   typeof window !== 'undefined'
@@ -18,7 +20,6 @@ function agora() {
   return new Date().toLocaleTimeString('pt-BR', {
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit',
   })
 }
 
@@ -26,11 +27,30 @@ function porcento(n) {
   return Math.round((n || 0) * 100) + '%'
 }
 
+function lerGuardado(chave, padrao) {
+  try {
+    const bruto = localStorage.getItem(chave)
+    return bruto ? JSON.parse(bruto) : padrao
+  } catch {
+    return padrao
+  }
+}
+
+function guardar(chave, valor) {
+  try {
+    localStorage.setItem(chave, JSON.stringify(valor))
+  } catch {
+    // sem espaço: segue sem salvar
+  }
+}
+
 export default function Ambiente({ aoVoltar }) {
   const [modo, setModo] = useState('parado')
   const [nivel, setNivel] = useState(0)
   const [sensibilidade, setSensibilidade] = useState('media')
-  const [eventos, setEventos] = useState([])
+  const [sons, setSons] = useState([])
+  const [falas, setFalas] = useState(() => lerGuardado(GUARDA_FALAS, []))
+  const [discreto, setDiscreto] = useState(() => lerGuardado(GUARDA_DISCRETO, false))
   const [alerta, setAlerta] = useState(false)
   const [erro, setErro] = useState('')
   const [modelo, setModelo] = useState('parado')
@@ -44,13 +64,30 @@ export default function Ambiente({ aoVoltar }) {
   const ultimaAnaliseRef = useRef(0)
   const melhorRef = useRef(null)
   const limiarRef = useRef(LIMIARES.media)
+  const discretoRef = useRef(false)
   const recRef = useRef(null)
   const vozRef = useRef(null)
   const querVozRef = useRef(false)
+  const ultimoFinalRef = useRef(-1)
+  const ultimoTextoRef = useRef('')
+  const fimRef = useRef(null)
 
   useEffect(() => {
     limiarRef.current = LIMIARES[sensibilidade]
   }, [sensibilidade])
+
+  useEffect(() => {
+    discretoRef.current = discreto
+    guardar(GUARDA_DISCRETO, discreto)
+  }, [discreto])
+
+  useEffect(() => {
+    guardar(GUARDA_FALAS, falas)
+  }, [falas])
+
+  useEffect(() => {
+    if (fimRef.current) fimRef.current.scrollIntoView({ block: 'end' })
+  }, [falas, falaParcial])
 
   useEffect(() => {
     let vivo = true
@@ -73,10 +110,8 @@ export default function Ambiente({ aoVoltar }) {
     }
   }, [])
 
-  function registrar(texto, detalhe) {
-    setEventos((antes) =>
-      [{ id: Date.now() + Math.random(), hora: agora(), texto, detalhe }, ...antes].slice(0, 15)
-    )
+  function avisar() {
+    if (discretoRef.current) return
     setAlerta(true)
     if (navigator.vibrate) navigator.vibrate([300, 120, 300])
     setTimeout(() => setAlerta(false), 2500)
@@ -92,7 +127,21 @@ export default function Ambiente({ aoVoltar }) {
       vozRef.current.abort()
       vozRef.current = null
     }
+    ultimoFinalRef.current = -1
     setFalaParcial('')
+  }
+
+  function guardarFala(texto) {
+    const limpo = texto.trim()
+    if (!limpo) return
+    if (limpo === ultimoTextoRef.current) return
+
+    ultimoTextoRef.current = limpo
+    setFalas((antes) => [
+      ...antes,
+      { id: Date.now() + Math.random(), hora: agora(), texto: limpo },
+    ])
+    avisar()
   }
 
   function comecarVoz() {
@@ -103,6 +152,7 @@ export default function Ambiente({ aoVoltar }) {
     if (vozRef.current) return
 
     querVozRef.current = true
+    ultimoFinalRef.current = -1
 
     const voz = new Reconhecimento()
     voz.lang = 'pt-BR'
@@ -110,14 +160,19 @@ export default function Ambiente({ aoVoltar }) {
     voz.interimResults = true
 
     voz.onresult = (e) => {
-      let finais = ''
       let parcial = ''
+
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        const trecho = e.results[i][0].transcript
-        if (e.results[i].isFinal) finais += trecho
-        else parcial += trecho
+        if (e.results[i].isFinal) {
+          if (i > ultimoFinalRef.current) {
+            ultimoFinalRef.current = i
+            guardarFala(e.results[i][0].transcript)
+          }
+        } else {
+          parcial += e.results[i][0].transcript
+        }
       }
-      if (finais.trim()) registrar(finais.trim(), 'fala')
+
       setFalaParcial(parcial)
     }
 
@@ -134,7 +189,7 @@ export default function Ambiente({ aoVoltar }) {
       if (querVozRef.current) {
         setTimeout(() => {
           if (querVozRef.current) comecarVoz()
-        }, 400)
+        }, 250)
       }
     }
 
@@ -144,6 +199,12 @@ export default function Ambiente({ aoVoltar }) {
     } catch {
       vozRef.current = null
     }
+  }
+
+  function limparFalas() {
+    setFalas([])
+    setFalaParcial('')
+    ultimoTextoRef.current = ''
   }
 
   /* ---------- modo sons ---------- */
@@ -163,6 +224,13 @@ export default function Ambiente({ aoVoltar }) {
       ctxRef.current = null
     }
     setNivel(0)
+  }
+
+  function registrarSom(texto, detalhe) {
+    setSons((antes) =>
+      [{ id: Date.now() + Math.random(), hora: agora(), texto, detalhe }, ...antes].slice(0, 15)
+    )
+    avisar()
   }
 
   function analisar() {
@@ -286,14 +354,14 @@ export default function Ambiente({ aoVoltar }) {
         ultimoAlertaRef.current = instante
 
         if (bom && bom.nota >= CONFIANCA_MINIMA) {
-          registrar(
+          registrarSom(
             'Possível ' + bom.texto,
             'certeza ' + porcento(bom.nota) +
               ' · modelo apontou ' + bom.geral + ' (' + porcento(bom.notaGeral) + ')'
           )
           melhorRef.current = null
         } else {
-          registrar('Som forte, tipo não identificado', '')
+          registrarSom('Som forte, tipo não identificado', '')
         }
       }
 
@@ -341,14 +409,12 @@ export default function Ambiente({ aoVoltar }) {
         <h2 className="form-titulo">Sentir o ambiente</h2>
 
         {modo !== 'parado' && (
-          <p className="indicador">
-            {modo === 'sons'
-              ? '🎤 Microfone ligado — escutando os sons'
-              : '🎤 Microfone ligado — escrevendo as falas'}
+          <p className={discreto ? 'indicador-fraco' : 'indicador'}>
+            {modo === 'sons' ? '🎤 escutando os sons' : '🎤 escrevendo as falas'}
           </p>
         )}
 
-        {alerta && (
+        {alerta && !discreto && (
           <div className="alerta-forte">
             <span className="alerta-icone">⚠️</span>
             <strong>
@@ -358,17 +424,29 @@ export default function Ambiente({ aoVoltar }) {
         )}
 
         {modo === 'fala' && (
-          <div className="transcricao">
-            {!falaParcial && eventos.length === 0 && (
-              <p className="transcricao-vazia">
-                Escutando. Peça para a pessoa falar perto do celular.
-              </p>
+          <>
+            <div className="fala-caixa">
+              {falas.length === 0 && !falaParcial && (
+                <p className="transcricao-vazia">
+                  Escutando. O que as pessoas falarem aparece aqui e fica salvo
+                  até você apagar.
+                </p>
+              )}
+              {falas.map((f) => (
+                <p key={f.id} className="fala-linha">
+                  <span className="fala-hora">{f.hora}</span> {f.texto}
+                </p>
+              ))}
+              {falaParcial && <p className="fala-parcial">{falaParcial}</p>}
+              <div ref={fimRef} />
+            </div>
+
+            {falas.length > 0 && (
+              <button className="secundario" onClick={limparFalas}>
+                🗑️ Apagar tudo o que foi escrito
+              </button>
             )}
-            {falaParcial && <p className="transcricao-parcial">{falaParcial}</p>}
-            {!falaParcial && eventos[0] && eventos[0].detalhe === 'fala' && (
-              <p className="transcricao-texto">{eventos[0].texto}</p>
-            )}
-          </div>
+          </>
         )}
 
         {modo === 'sons' && (
@@ -400,6 +478,21 @@ export default function Ambiente({ aoVoltar }) {
           {modo === 'fala' ? 'Parar' : '💬 Escutar as pessoas falando'}
         </button>
 
+        <button
+          className={discreto ? 'chave chave-ligada' : 'chave'}
+          onClick={() => setDiscreto(!discreto)}
+        >
+          {discreto ? '🤫 Modo discreto ligado' : '🤫 Modo discreto desligado'}
+        </button>
+
+        <div className="instrucao">
+          <p className="aviso-linha">
+            {discreto
+              ? 'Sem vibração e sem alerta piscando. Só o texto aparece na tela.'
+              : 'O celular vibra e mostra um alerta grande a cada som novo.'}
+          </p>
+        </div>
+
         {modo === 'sons' && modelo === 'falhou' && (
           <p className="erro">
             O reconhecedor de sons não carregou. O aviso de som forte continua
@@ -411,16 +504,6 @@ export default function Ambiente({ aoVoltar }) {
           <div className="instrucao">
             <p className="aviso-linha">
               Baixando o reconhecedor de sons. Pode demorar na primeira vez.
-            </p>
-          </div>
-        )}
-
-        {modo === 'fala' && (
-          <div className="instrucao">
-            <p className="aviso-linha">
-              Neste modo o áudio é enviado ao serviço de voz do navegador (Google)
-              para virar texto. A detecção de sirene, campainha e outros sons fica
-              pausada enquanto ele estiver ligado.
             </p>
           </div>
         )}
@@ -451,18 +534,14 @@ export default function Ambiente({ aoVoltar }) {
           </div>
         )}
 
-        {eventos.length > 0 && (
+        {modo !== 'fala' && sons.length > 0 && (
           <section className="grupo">
             <h3 className="grupo-titulo">O que aconteceu</h3>
-            {eventos.map((e) => (
+            {sons.map((e) => (
               <div key={e.id} className="evento">
                 <strong className="evento-hora">{e.hora}</strong>
-                <span className="evento-texto">
-                  {e.detalhe === 'fala' ? '💬 ' + e.texto : e.texto}
-                </span>
-                {e.detalhe && e.detalhe !== 'fala' && (
-                  <span className="evento-detalhe">{e.detalhe}</span>
-                )}
+                <span className="evento-texto">{e.texto}</span>
+                {e.detalhe && <span className="evento-detalhe">{e.detalhe}</span>}
               </div>
             ))}
           </section>
@@ -471,9 +550,9 @@ export default function Ambiente({ aoVoltar }) {
 
       <footer className="rodape">
         Um modo por vez, porque os dois disputam o microfone.
-        Os sons do ambiente são analisados dentro do celular e nada é gravado.
+        O texto das falas fica salvo neste celular até você apagar.
         Só funciona com esta tela aberta.
       </footer>
     </div>
   )
-}
+    }
