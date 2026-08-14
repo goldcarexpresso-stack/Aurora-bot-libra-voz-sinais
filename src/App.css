@@ -15,26 +15,25 @@ body {
   min-height: 100vh;
   max-width: 520px;
   margin: 0 auto;
-  padding: 24px 16px 32px;
+  padding: 14px 12px 20px;
   display: flex;
   flex-direction: column;
 }
 
 .topo {
   text-align: center;
-  padding: 16px 0 28px;
+  padding: 4px 0 14px;
 }
 
 .topo h1 {
-  font-size: 40px;
-  letter-spacing: 6px;
+  font-size: 30px;
+  letter-spacing: 5px;
   font-weight: 800;
-  color: #FFFFFF;
 }
 
 .sub {
-  margin-top: 6px;
-  font-size: 16px;
+  margin-top: 2px;
+  font-size: 13px;
   color: #7FD1CC;
   letter-spacing: 1px;
 }
@@ -42,21 +41,21 @@ body {
 .menu {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 10px;
 }
 
 .card {
-  min-height: 128px;
-  padding: 18px 12px;
+  min-height: 88px;
+  padding: 10px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
   background: #14304A;
   color: #FFFFFF;
   border: 2px solid #2A5170;
-  border-radius: 20px;
+  border-radius: 16px;
   cursor: pointer;
   transition: transform 0.12s ease, background 0.12s ease;
 }
@@ -67,25 +66,25 @@ body {
 }
 
 .card:focus-visible {
-  outline: 4px solid #7FD1CC;
-  outline-offset: 3px;
+  outline: 3px solid #7FD1CC;
+  outline-offset: 2px;
 }
 
 .card-icone {
-  font-size: 40px;
+  font-size: 28px;
   line-height: 1;
 }
 
 .card-titulo {
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 700;
   text-align: center;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .card-sos {
   grid-column: 1 / -1;
-  min-height: 96px;
+  min-height: 62px;
   background: #B3261E;
   border-color: #FF6B5E;
 }
@@ -95,28 +94,35 @@ body {
 }
 
 .card-sos .card-titulo {
-  font-size: 22px;
+  font-size: 18px;
   letter-spacing: 3px;
+}
+
+.card-dono {
+  grid-column: 1 / -1;
+  min-height: 62px;
+  background: #1877CC;
+  border-color: #4DA3F5;
 }
 
 .rodape {
   margin-top: auto;
-  padding-top: 28px;
+  padding-top: 16px;
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: #8AA4BC;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .voltar {
   align-self: flex-start;
-  padding: 14px 22px;
-  font-size: 17px;
+  padding: 10px 16px;
+  font-size: 16px;
   font-weight: 700;
   color: #FFFFFF;
   background: #14304A;
   border: 2px solid #2A5170;
-  border-radius: 14px;
+  border-radius: 12px;
   cursor: pointer;
 }
 
@@ -131,35 +137,49 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  gap: 14px;
-  padding: 24px 12px;
+  gap: 12px;
+  padding: 20px 12px;
 }
 
 .aviso-icone {
-  font-size: 64px;
+  font-size: 56px;
   line-height: 1;
 }
 
 .aviso h2 {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
 }
 
 .aviso-texto {
-  font-size: 18px;
+  font-size: 17px;
   color: #E4EDF5;
-  line-height: 1.5;
+  line-height: 1.45;
   max-width: 320px;
 }
 
+/* ----- Avisos em azul ----- */
+
+.instrucao,
+.dica-libras,
 .aviso-fase {
-  margin-top: 4px;
-  padding: 10px 18px;
+  padding: 12px 14px;
   font-size: 15px;
+  line-height: 1.4;
+  color: #FFFFFF;
+  background: #1877CC;
+  border: 2px solid #4DA3F5;
+  border-radius: 14px;
+}
+
+.instrucao .aviso-linha {
+  color: #FFFFFF;
+  font-size: 15px;
+}
+
+.aviso-fase {
+  display: inline-block;
   font-weight: 700;
-  color: #0B1B2B;
-  background: #7FD1CC;
-  border-radius: 999px;
 }
 
 /* ----- Formulários e perfil ----- */
@@ -168,15 +188,15 @@ body {
 .perfil {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 
 .perfil {
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 .form-titulo {
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 800;
   text-align: center;
 }
@@ -184,23 +204,23 @@ body {
 .campo {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .campo-nome {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #8AA4BC;
 }
 
 .campo-input {
   width: 100%;
-  padding: 16px;
-  font-size: 18px;
+  padding: 13px;
+  font-size: 17px;
   color: #FFFFFF;
   background: #14304A;
   border: 2px solid #2A5170;
-  border-radius: 14px;
+  border-radius: 12px;
   font-family: inherit;
 }
 
@@ -219,23 +239,23 @@ body {
 }
 
 .erro {
-  padding: 14px 16px;
-  font-size: 16px;
+  padding: 12px 14px;
+  font-size: 15px;
   line-height: 1.4;
   color: #FFFFFF;
   background: #7A1D17;
   border: 2px solid #FF6B5E;
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
 .principal {
-  padding: 18px;
-  font-size: 19px;
+  padding: 14px;
+  font-size: 17px;
   font-weight: 800;
   color: #0B1B2B;
   background: #7FD1CC;
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   cursor: pointer;
 }
 
@@ -257,13 +277,13 @@ body {
 }
 
 .secundario {
-  padding: 16px;
-  font-size: 17px;
+  padding: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: #FFFFFF;
   background: transparent;
   border: 2px solid #2A5170;
-  border-radius: 16px;
+  border-radius: 14px;
   cursor: pointer;
 }
 
@@ -271,38 +291,55 @@ body {
   background: #14304A;
 }
 
+.chave {
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #8AA4BC;
+  background: transparent;
+  border: 2px dashed #2A5170;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.chave-ligada {
+  color: #FFFFFF;
+  background: #1877CC;
+  border: 2px solid #4DA3F5;
+}
+
 .perfil-linha {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 16px;
+  gap: 4px;
+  padding: 13px;
   background: #14304A;
   border: 2px solid #2A5170;
-  border-radius: 16px;
+  border-radius: 14px;
 }
 
 .perfil-valor {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   word-break: break-word;
 }
 
 .perfil-id {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 2px;
   color: #7FD1CC;
 }
 
 .sair {
-  margin-top: 8px;
-  padding: 16px;
-  font-size: 17px;
+  margin-top: 6px;
+  padding: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: #FF6B5E;
   background: transparent;
   border: 2px solid #7A1D17;
-  border-radius: 16px;
+  border-radius: 14px;
   cursor: pointer;
 }
 
@@ -310,23 +347,23 @@ body {
   background: #3A100D;
 }
 
-/* ----- Tela de voz ----- */
+/* ----- Abas e blocos ----- */
 
 .abas {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 20px 0 18px;
+  gap: 8px;
+  margin: 14px 0;
 }
 
 .aba {
-  padding: 16px 8px;
-  font-size: 16px;
+  padding: 12px 6px;
+  font-size: 15px;
   font-weight: 700;
   color: #8AA4BC;
   background: transparent;
   border: 2px solid #2A5170;
-  border-radius: 16px;
+  border-radius: 14px;
   cursor: pointer;
 }
 
@@ -339,66 +376,109 @@ body {
 .bloco {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 20px;
+  gap: 12px;
+  margin-top: 14px;
 }
 
 .indicador {
-  padding: 14px 16px;
-  font-size: 17px;
+  padding: 11px 14px;
+  font-size: 16px;
   font-weight: 700;
   text-align: center;
   color: #0B1B2B;
   background: #7FD1CC;
-  border-radius: 14px;
+  border-radius: 12px;
+}
+
+.indicador-fraco {
+  font-size: 13px;
+  color: #8AA4BC;
 }
 
 .transcricao {
-  min-height: 200px;
-  padding: 20px;
+  min-height: 150px;
+  padding: 16px;
   background: #14304A;
   border: 2px solid #2A5170;
-  border-radius: 20px;
+  border-radius: 16px;
 }
 
 .transcricao-vazia {
-  font-size: 17px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.45;
   color: #8AA4BC;
 }
 
 .transcricao-texto {
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 700;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.frase + .frase {
+  margin-top: 10px;
+}
+
+.transcricao-parcial {
+  margin-top: 8px;
+  font-size: 20px;
+  line-height: 1.35;
+  color: #8AA4BC;
+  word-break: break-word;
+}
+
+/* ----- Caixa das falas ----- */
+
+.fala-caixa {
+  max-height: 210px;
+  overflow-y: auto;
+  padding: 14px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+}
+
+.fala-linha {
+  font-size: 17px;
   line-height: 1.4;
   word-break: break-word;
 }
 
-.transcricao-parcial {
+.fala-linha + .fala-linha {
   margin-top: 10px;
-  font-size: 24px;
+}
+
+.fala-hora {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7FD1CC;
+}
+
+.fala-parcial {
+  margin-top: 8px;
+  font-size: 16px;
   line-height: 1.4;
   color: #8AA4BC;
-  word-break: break-word;
 }
 
 /* ----- Contatos ----- */
 
 .aviso-linha {
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.45;
   color: #8AA4BC;
 }
 
 .grupo {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 6px;
 }
 
 .grupo-titulo {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   color: #7FD1CC;
 }
@@ -406,24 +486,24 @@ body {
 .pessoa {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px;
+  gap: 10px;
+  padding: 14px;
   background: #14304A;
   border: 2px solid #2A5170;
-  border-radius: 18px;
+  border-radius: 16px;
 }
 
 .pessoa-nome {
   display: block;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   word-break: break-word;
 }
 
 .pessoa-id {
   display: block;
-  margin-top: 4px;
-  font-size: 16px;
+  margin-top: 2px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 1px;
   color: #7FD1CC;
@@ -432,7 +512,7 @@ body {
 .pessoa-botoes {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .pessoa-botoes .sair {
@@ -441,12 +521,12 @@ body {
 
 .pessoa-abrir {
   width: 100%;
-  padding: 18px;
+  padding: 14px;
   text-align: left;
   background: #14304A;
   color: #FFFFFF;
   border: 2px solid #2A5170;
-  border-radius: 18px;
+  border-radius: 16px;
   cursor: pointer;
 }
 
@@ -459,44 +539,44 @@ body {
 .chat-topo {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding-bottom: 16px;
+  gap: 12px;
+  padding-bottom: 12px;
   border-bottom: 2px solid #2A5170;
 }
 
 .chat-topo .voltar {
   align-self: auto;
-  padding: 12px 18px;
-  font-size: 20px;
+  padding: 10px 14px;
+  font-size: 18px;
 }
 
 .conversa {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 18px 0;
+  gap: 10px;
+  padding: 14px 0;
   overflow-y: auto;
 }
 
 .balao {
   align-self: flex-start;
   max-width: 85%;
-  padding: 14px 16px;
+  padding: 12px 14px;
   background: #14304A;
   border: 2px solid #2A5170;
-  border-radius: 18px 18px 18px 4px;
+  border-radius: 16px 16px 16px 4px;
 }
 
 .balao-meu {
   align-self: flex-end;
   background: #1F5A63;
   border-color: #2F8A94;
-  border-radius: 18px 18px 4px 18px;
+  border-radius: 16px 16px 4px 16px;
 }
 
 .balao-texto {
-  font-size: 19px;
+  font-size: 17px;
   line-height: 1.4;
   word-break: break-word;
   white-space: pre-wrap;
@@ -504,8 +584,8 @@ body {
 
 .balao-hora {
   display: block;
-  margin-top: 6px;
-  font-size: 13px;
+  margin-top: 4px;
+  font-size: 12px;
   color: #8AA4BC;
   text-align: right;
 }
@@ -513,51 +593,44 @@ body {
 .escrever {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding-top: 14px;
+  gap: 10px;
+  padding-top: 12px;
   border-top: 2px solid #2A5170;
 }
 
 /* ----- Libras ----- */
 
 .tela-libras {
-  padding-top: 14px;
+  padding-top: 12px;
 }
 
 .libras-topo {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .libras-topo .voltar {
   align-self: auto;
-  padding: 12px 18px;
-  font-size: 20px;
+  padding: 10px 14px;
+  font-size: 18px;
 }
 
 .libras-titulo {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
 }
 
 .para-traduzir {
-  padding: 18px;
+  padding: 14px;
   background: #14304A;
   border: 2px solid #7FD1CC;
-  border-radius: 20px;
+  border-radius: 16px;
 }
 
 .tela-libras .bloco {
-  margin-top: 16px;
-}
-
-.instrucao {
-  padding: 14px 16px;
-  background: #14304A;
-  border: 2px dashed #2A5170;
-  border-radius: 16px;
+  margin-top: 12px;
 }
 
 /* ----- Sentir o ambiente ----- */
@@ -565,12 +638,12 @@ body {
 .alerta-forte {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 20px;
+  gap: 12px;
+  padding: 14px;
   background: #B3261E;
   border: 3px solid #FF6B5E;
-  border-radius: 20px;
-  font-size: 20px;
+  border-radius: 16px;
+  font-size: 18px;
   line-height: 1.3;
   animation: pulsar 0.7s ease-in-out infinite alternate;
 }
@@ -585,22 +658,22 @@ body {
 }
 
 .alerta-icone {
-  font-size: 40px;
+  font-size: 32px;
   line-height: 1;
 }
 
 .medidor {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 18px;
+  gap: 8px;
+  padding: 14px;
   background: #14304A;
   border: 2px solid #2A5170;
-  border-radius: 18px;
+  border-radius: 16px;
 }
 
 .medidor-barra {
-  height: 26px;
+  height: 20px;
   background: #0B1B2B;
   border-radius: 999px;
   overflow: hidden;
@@ -618,7 +691,7 @@ body {
 }
 
 .medidor-texto {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #8AA4BC;
 }
@@ -626,19 +699,56 @@ body {
 .evento {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px;
+  gap: 2px;
+  padding: 12px 14px;
   background: #14304A;
   border: 2px solid #2A5170;
-  border-radius: 16px;
+  border-radius: 14px;
 }
 
 .evento-hora {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: #7FD1CC;
 }
 
 .evento-texto {
-  font-size: 17px;
+  font-size: 16px;
 }
+
+.evento-detalhe {
+  font-size: 13px;
+  color: #8AA4BC;
+  line-height: 1.35;
+}
+
+/* ----- Painel do dono ----- */
+
+.painel-grade {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.painel-caixa {
+  padding: 14px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.painel-num {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  color: #7FD1CC;
+}
+
+.painel-rotulo {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #8AA4BC;
+  line-height: 1.3;
+  }
