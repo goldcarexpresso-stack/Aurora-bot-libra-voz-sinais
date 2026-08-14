@@ -520,15 +520,41 @@ body {
 
 /* ----- Libras ----- */
 
+.tela-libras {
+  padding-top: 14px;
+}
+
+.libras-topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.libras-topo .voltar {
+  align-self: auto;
+  padding: 12px 18px;
+  font-size: 20px;
+}
+
+.libras-titulo {
+  font-size: 20px;
+  font-weight: 800;
+}
+
 .para-traduzir {
-  padding: 20px;
+  padding: 18px;
   background: #14304A;
   border: 2px solid #7FD1CC;
   border-radius: 20px;
 }
 
+.tela-libras .bloco {
+  margin-top: 16px;
+}
+
 .instrucao {
-  padding: 16px;
+  padding: 14px 16px;
   background: #14304A;
   border: 2px dashed #2A5170;
   border-radius: 16px;
