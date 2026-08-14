@@ -559,3 +559,86 @@ body {
   border: 2px dashed #2A5170;
   border-radius: 16px;
 }
+
+/* ----- Sentir o ambiente ----- */
+
+.alerta-forte {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: #B3261E;
+  border: 3px solid #FF6B5E;
+  border-radius: 20px;
+  font-size: 20px;
+  line-height: 1.3;
+  animation: pulsar 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes pulsar {
+  from {
+    background: #B3261E;
+  }
+  to {
+    background: #E04236;
+  }
+}
+
+.alerta-icone {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.medidor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 18px;
+}
+
+.medidor-barra {
+  height: 26px;
+  background: #0B1B2B;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.medidor-nivel {
+  height: 100%;
+  background: #7FD1CC;
+  border-radius: 999px;
+  transition: width 0.08s linear;
+}
+
+.medidor-nivel.alto {
+  background: #FF6B5E;
+}
+
+.medidor-texto {
+  font-size: 16px;
+  font-weight: 700;
+  color: #8AA4BC;
+}
+
+.evento {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+}
+
+.evento-hora {
+  font-size: 15px;
+  font-weight: 800;
+  color: #7FD1CC;
+}
+
+.evento-texto {
+  font-size: 17px;
+}
