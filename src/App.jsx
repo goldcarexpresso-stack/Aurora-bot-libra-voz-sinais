@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase, conectado } from './supabase.js'
+import Login from './Login.jsx'
+import Perfil from './Perfil.jsx'
 
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras', fase: 'Fase 3' },
@@ -12,7 +15,61 @@ const MENU = [
 ]
 
 export default function App() {
+  const [sessao, setSessao] = useState(null)
+  const [carregando, setCarregando] = useState(true)
   const [aberto, setAberto] = useState(null)
+  const [noPerfil, setNoPerfil] = useState(false)
+
+  useEffect(() => {
+    if (!conectado) {
+      setCarregando(false)
+      return
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      setSessao(data.session)
+      setCarregando(false)
+    })
+
+    const { data: escuta } = supabase.auth.onAuthStateChange((_evento, nova) => {
+      setSessao(nova)
+      setAberto(null)
+      setNoPerfil(false)
+    })
+
+    return () => escuta.subscription.unsubscribe()
+  }, [])
+
+  if (!conectado) {
+    return (
+      <div className="tela">
+        <div className="aviso">
+          <span className="aviso-icone">⚠️</span>
+          <h2>Sem conexão com o banco</h2>
+          <p className="aviso-texto">
+            As chaves do Supabase não chegaram até o aplicativo.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (carregando) {
+    return (
+      <div className="tela">
+        <div className="aviso">
+          <span className="aviso-icone">🌅</span>
+          <p className="aviso-texto">Carregando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!sessao) return <Login />
+
+  if (noPerfil) {
+    return <Perfil sessao={sessao} aoVoltar={() => setNoPerfil(false)} />
+  }
 
   if (aberto) {
     return (
@@ -23,9 +80,7 @@ export default function App() {
         <div className="aviso">
           <span className="aviso-icone">{aberto.icone}</span>
           <h2>{aberto.titulo}</h2>
-          <p className="aviso-texto">
-            Esta função ainda não foi construída.
-          </p>
+          <p className="aviso-texto">Esta função ainda não foi construída.</p>
           <p className="aviso-fase">Prevista para a {aberto.fase}</p>
         </div>
       </div>
@@ -50,10 +105,16 @@ export default function App() {
             <span className="card-titulo">{item.titulo}</span>
           </button>
         ))}
+
+        <button className="card" onClick={() => setNoPerfil(true)}>
+          <span className="card-icone">👤</span>
+          <span className="card-titulo">Meu perfil</span>
+        </button>
       </nav>
 
       <footer className="rodape">
-        Fase 0 — base do aplicativo. Nenhuma função ativa ainda.
+        Fase 1 — conta e perfil funcionando.
+        As demais funções ainda não foram construídas.
       </footer>
     </div>
   )
