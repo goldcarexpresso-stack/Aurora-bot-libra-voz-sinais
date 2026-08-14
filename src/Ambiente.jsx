@@ -3,7 +3,7 @@ import { AMOSTRAS, TAXA, carregarReconhecedor, reconhecer } from './sons.js'
 
 const LIMIARES = { baixa: 60, media: 42, alta: 28 }
 const ESPERA_ENTRE_ALERTAS = 3000
-const CONFIANCA_MINIMA = 0.35
+const CONFIANCA_MINIMA = 0.2
 
 function agora() {
   return new Date().toLocaleTimeString('pt-BR', {
@@ -11,6 +11,10 @@ function agora() {
     minute: '2-digit',
     second: '2-digit',
   })
+}
+
+function porcento(n) {
+  return Math.round((n || 0) * 100) + '%'
 }
 
 export default function Ambiente({ aoVoltar }) {
@@ -30,7 +34,8 @@ export default function Ambiente({ aoVoltar }) {
   const limiarRef = useRef(LIMIARES.media)
   const bufferRef = useRef(new Float32Array(AMOSTRAS))
   const posRef = useRef(0)
-  const reconhecedorRef = useRef(null)
+  const cheioRef = useRef(false)
+  const recRef = useRef(null)
   const ocupadoRef = useRef(false)
 
   useEffect(() => {
@@ -44,7 +49,7 @@ export default function Ambiente({ aoVoltar }) {
     carregarReconhecedor()
       .then((r) => {
         if (!vivo) return
-        reconhecedorRef.current = r
+        recRef.current = r
         setModelo('pronto')
       })
       .catch(() => {
@@ -75,36 +80,43 @@ export default function Ambiente({ aoVoltar }) {
       ctxRef.current = null
     }
     posRef.current = 0
+    cheioRef.current = false
     setLigado(false)
     setNivel(0)
     setAlerta(false)
   }
 
-  function registrar(texto, forca) {
-    const instante = Date.now()
+  function ordenar() {
+    const buffer = bufferRef.current
+    if (!cheioRef.current) return buffer.slice(0, posRef.current)
+    const saida = new Float32Array(AMOSTRAS)
+    const corte = posRef.current
+    saida.set(buffer.subarray(corte), 0)
+    saida.set(buffer.subarray(0, corte), AMOSTRAS - corte)
+    return saida
+  }
+
+  function registrar(texto, detalhe) {
     setEventos((antes) =>
-      [{ id: instante + Math.random(), hora: agora(), texto, forca }, ...antes].slice(0, 15)
+      [{ id: Date.now() + Math.random(), hora: agora(), texto, detalhe }, ...antes].slice(0, 15)
     )
     setAlerta(true)
     if (navigator.vibrate) navigator.vibrate([300, 120, 300])
     setTimeout(() => setAlerta(false), 2500)
   }
 
-  async function analisar() {
-    if (ocupadoRef.current || !reconhecedorRef.current) return
+  function analisar() {
+    if (ocupadoRef.current || !recRef.current) return null
+    if (!cheioRef.current && posRef.current < AMOSTRAS) return null
+
     ocupadoRef.current = true
     try {
-      const copia = bufferRef.current.slice(0)
-      const achado = reconhecer(reconhecedorRef.current, copia)
-      if (achado && achado.nota >= CONFIANCA_MINIMA) {
-        return achado.texto
-      }
+      return reconhecer(recRef.current, ordenar())
     } catch {
-      // se falhar, o alerta de som forte continua funcionando
+      return { erro: 'Falha ao analisar o som.' }
     } finally {
       ocupadoRef.current = false
     }
-    return null
   }
 
   async function ligar() {
@@ -144,7 +156,11 @@ export default function Ambiente({ aoVoltar }) {
       const buffer = bufferRef.current
       for (let i = 0; i < dados.length; i++) {
         buffer[posRef.current] = dados[i]
-        posRef.current = (posRef.current + 1) % AMOSTRAS
+        posRef.current++
+        if (posRef.current >= AMOSTRAS) {
+          posRef.current = 0
+          cheioRef.current = true
+        }
       }
     }
 
@@ -176,9 +192,25 @@ export default function Ambiente({ aoVoltar }) {
         const instante = Date.now()
         if (instante - ultimoRef.current > ESPERA_ENTRE_ALERTAS) {
           ultimoRef.current = instante
-          analisar().then((tipo) => {
-            registrar(tipo ? 'Possível ' + tipo : 'Som forte, tipo não identificado', valor)
-          })
+
+          const achado = analisar()
+
+          if (!achado) {
+            registrar('Som forte detectado', 'reconhecedor ainda não pronto')
+          } else if (achado.erro) {
+            registrar('Som forte detectado', achado.erro)
+          } else if (achado.nota >= CONFIANCA_MINIMA) {
+            registrar(
+              'Possível ' + achado.texto,
+              'certeza ' + porcento(achado.nota) +
+                ' · modelo apontou ' + achado.geral + ' (' + porcento(achado.notaGeral) + ')'
+            )
+          } else {
+            registrar(
+              'Som forte, tipo não identificado',
+              'modelo apontou ' + achado.geral + ' (' + porcento(achado.notaGeral) + ')'
+            )
+          }
         }
       }
 
@@ -186,14 +218,6 @@ export default function Ambiente({ aoVoltar }) {
     }
 
     medir()
-  }
-
-  const recadoModelo = {
-    baixando: 'Baixando o reconhecedor de sons. Pode demorar na primeira vez.',
-    pronto: 'Reconhecedor de sons pronto.',
-    falhou:
-      'O reconhecedor de sons não carregou. O aviso de som forte continua funcionando, mas sem dizer o tipo.',
-    parado: '',
   }
 
   return (
@@ -229,11 +253,18 @@ export default function Ambiente({ aoVoltar }) {
         </div>
 
         {modelo === 'falhou' ? (
-          <p className="erro">{recadoModelo.falhou}</p>
+          <p className="erro">
+            O reconhecedor de sons não carregou. O aviso de som forte continua
+            funcionando, mas sem dizer o tipo.
+          </p>
         ) : (
           modelo !== 'parado' && (
             <div className="instrucao">
-              <p className="aviso-linha">{recadoModelo[modelo]}</p>
+              <p className="aviso-linha">
+                {modelo === 'baixando'
+                  ? 'Baixando o reconhecedor de sons. Pode demorar na primeira vez.'
+                  : 'Reconhecedor de sons pronto.'}
+              </p>
             </div>
           )
         )}
@@ -281,6 +312,7 @@ export default function Ambiente({ aoVoltar }) {
               <div key={e.id} className="evento">
                 <strong className="evento-hora">{e.hora}</strong>
                 <span className="evento-texto">{e.texto}</span>
+                {e.detalhe && <span className="evento-detalhe">{e.detalhe}</span>}
               </div>
             ))}
           </section>
@@ -294,4 +326,4 @@ export default function Ambiente({ aoVoltar }) {
       </footer>
     </div>
   )
-}
+  }
