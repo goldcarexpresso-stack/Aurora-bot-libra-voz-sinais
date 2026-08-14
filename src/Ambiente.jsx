@@ -27,6 +27,13 @@ function porcento(n) {
   return Math.round((n || 0) * 100) + '%'
 }
 
+function ehContinuacao(nova, velha) {
+  if (!velha) return false
+  const a = nova.toLowerCase()
+  const b = velha.toLowerCase()
+  return a.startsWith(b) || b.startsWith(a)
+}
+
 function lerGuardado(chave, padrao) {
   try {
     const bruto = localStorage.getItem(chave)
@@ -68,7 +75,6 @@ export default function Ambiente({ aoVoltar }) {
   const recRef = useRef(null)
   const vozRef = useRef(null)
   const querVozRef = useRef(false)
-  const ultimoFinalRef = useRef(-1)
   const ultimoTextoRef = useRef('')
   const fimRef = useRef(null)
 
@@ -127,14 +133,28 @@ export default function Ambiente({ aoVoltar }) {
       vozRef.current.abort()
       vozRef.current = null
     }
-    ultimoFinalRef.current = -1
     setFalaParcial('')
   }
 
-  function guardarFala(texto) {
-    const limpo = texto.trim()
+  function guardarFala(bruto) {
+    const limpo = bruto.trim()
     if (!limpo) return
-    if (limpo === ultimoTextoRef.current) return
+
+    const anterior = ultimoTextoRef.current
+
+    if (ehContinuacao(limpo, anterior)) {
+      const maior = limpo.length >= anterior.length ? limpo : anterior
+      ultimoTextoRef.current = maior
+      setFalas((antes) => {
+        if (antes.length === 0) {
+          return [{ id: Date.now() + Math.random(), hora: agora(), texto: maior }]
+        }
+        const copia = antes.slice(0, -1)
+        const ultima = antes[antes.length - 1]
+        return [...copia, { ...ultima, texto: maior }]
+      })
+      return
+    }
 
     ultimoTextoRef.current = limpo
     setFalas((antes) => [
@@ -152,7 +172,6 @@ export default function Ambiente({ aoVoltar }) {
     if (vozRef.current) return
 
     querVozRef.current = true
-    ultimoFinalRef.current = -1
 
     const voz = new Reconhecimento()
     voz.lang = 'pt-BR'
@@ -164,10 +183,7 @@ export default function Ambiente({ aoVoltar }) {
 
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (e.results[i].isFinal) {
-          if (i > ultimoFinalRef.current) {
-            ultimoFinalRef.current = i
-            guardarFala(e.results[i][0].transcript)
-          }
+          guardarFala(e.results[i][0].transcript)
         } else {
           parcial += e.results[i][0].transcript
         }
@@ -425,6 +441,11 @@ export default function Ambiente({ aoVoltar }) {
 
         {modo === 'fala' && (
           <>
+            <p className="dica-libras">
+              🤟 Para ver em Libras: toque no texto abaixo e depois no botão
+              azul da mãozinha.
+            </p>
+
             <div className="fala-caixa">
               {falas.length === 0 && !falaParcial && (
                 <p className="transcricao-vazia">
@@ -555,4 +576,4 @@ export default function Ambiente({ aoVoltar }) {
       </footer>
     </div>
   )
-    }
+      }
