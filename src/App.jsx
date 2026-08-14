@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { supabase, conectado } from './supabase.js'
 import Login from './Login.jsx'
 import Perfil from './Perfil.jsx'
+import Falar from './Falar.jsx'
 
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras', fase: 'Fase 3' },
-  { id: 'falar', icone: '🎤', titulo: 'Falar', fase: 'Fase 2' },
+  { id: 'falar', icone: '🎤', titulo: 'Falar', pronto: true },
   { id: 'conversas', icone: '💬', titulo: 'Minhas conversas', fase: 'Fase 2' },
   { id: 'contatos', icone: '👥', titulo: 'Contatos', fase: 'Fase 2' },
   { id: 'ambiente', icone: '👁️', titulo: 'Sentir o ambiente', fase: 'Fase 4' },
@@ -71,6 +72,10 @@ export default function App() {
     return <Perfil sessao={sessao} aoVoltar={() => setNoPerfil(false)} />
   }
 
+  if (aberto && aberto.id === 'falar') {
+    return <Falar aoVoltar={() => setAberto(null)} />
+  }
+
   if (aberto) {
     return (
       <div className="tela">
@@ -113,7 +118,7 @@ export default function App() {
       </nav>
 
       <footer className="rodape">
-        Fase 1 — conta e perfil funcionando.
+        Fase 2 — voz funcionando.
         As demais funções ainda não foram construídas.
       </footer>
     </div>
