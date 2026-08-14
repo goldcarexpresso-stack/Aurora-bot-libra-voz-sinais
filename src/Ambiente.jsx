@@ -9,6 +9,11 @@ const INTERVALO_ANALISE = 700
 const VALIDADE = 2500
 const JANELA = 16384
 
+const Reconhecimento =
+  typeof window !== 'undefined'
+    ? window.SpeechRecognition || window.webkitSpeechRecognition
+    : null
+
 function agora() {
   return new Date().toLocaleTimeString('pt-BR', {
     hour: '2-digit',
@@ -29,6 +34,9 @@ export default function Ambiente({ aoVoltar }) {
   const [alerta, setAlerta] = useState(false)
   const [erro, setErro] = useState('')
   const [modelo, setModelo] = useState('parado')
+  const [transcrever, setTranscrever] = useState(false)
+  const [falaFinal, setFalaFinal] = useState('')
+  const [falaParcial, setFalaParcial] = useState('')
 
   const ctxRef = useRef(null)
   const streamRef = useRef(null)
@@ -39,6 +47,9 @@ export default function Ambiente({ aoVoltar }) {
   const melhorRef = useRef(null)
   const limiarRef = useRef(LIMIARES.media)
   const recRef = useRef(null)
+  const vozRef = useRef(null)
+  const querVozRef = useRef(false)
+  const ultimaFalaRef = useRef('')
 
   useEffect(() => {
     limiarRef.current = LIMIARES[sensibilidade]
@@ -64,11 +75,78 @@ export default function Ambiente({ aoVoltar }) {
     }
   }, [])
 
+  function pararVoz() {
+    querVozRef.current = false
+    if (vozRef.current) {
+      vozRef.current.onend = null
+      vozRef.current.abort()
+      vozRef.current = null
+    }
+    setFalaParcial('')
+  }
+
+  function comecarVoz() {
+    if (!Reconhecimento || vozRef.current) return
+    querVozRef.current = true
+
+    const voz = new Reconhecimento()
+    voz.lang = 'pt-BR'
+    voz.continuous = true
+    voz.interimResults = true
+
+    voz.onresult = (e) => {
+      let finais = ''
+      let parcial = ''
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const trecho = e.results[i][0].transcript
+        if (e.results[i].isFinal) finais += trecho
+        else parcial += trecho
+      }
+      if (finais.trim()) {
+        ultimaFalaRef.current = finais.trim()
+        setFalaFinal(finais.trim())
+      }
+      setFalaParcial(parcial)
+    }
+
+    voz.onerror = () => {}
+
+    voz.onend = () => {
+      vozRef.current = null
+      if (querVozRef.current) {
+        setTimeout(() => {
+          if (querVozRef.current) comecarVoz()
+        }, 400)
+      }
+    }
+
+    vozRef.current = voz
+    try {
+      voz.start()
+    } catch {
+      vozRef.current = null
+    }
+  }
+
+  function alternarTranscricao() {
+    const novo = !transcrever
+    setTranscrever(novo)
+    if (!novo) {
+      pararVoz()
+      setFalaFinal('')
+      ultimaFalaRef.current = ''
+    } else if (ligado) {
+      comecarVoz()
+    }
+  }
+
   function desligar() {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
     rafRef.current = null
     capturaRef.current = null
     melhorRef.current = null
+
+    pararVoz()
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop())
@@ -173,6 +251,8 @@ export default function Ambiente({ aoVoltar }) {
     melhorRef.current = null
     setLigado(true)
 
+    if (transcrever) comecarVoz()
+
     const dados = new Uint8Array(medidor.fftSize)
 
     function medir() {
@@ -216,11 +296,19 @@ export default function Ambiente({ aoVoltar }) {
         ultimoAlertaRef.current = instante
 
         if (bom && bom.nota >= CONFIANCA_MINIMA) {
-          registrar(
-            'Possível ' + bom.texto,
-            'certeza ' + porcento(bom.nota) +
-              ' · modelo apontou ' + bom.geral + ' (' + porcento(bom.notaGeral) + ')'
-          )
+          const ehVoz = bom.texto.indexOf('voz') === 0
+          const dito = ultimaFalaRef.current
+
+          if (ehVoz && transcrever && dito) {
+            registrar('Alguém falou: "' + dito + '"', 'certeza ' + porcento(bom.nota))
+            ultimaFalaRef.current = ''
+          } else {
+            registrar(
+              'Possível ' + bom.texto,
+              'certeza ' + porcento(bom.nota) +
+                ' · modelo apontou ' + bom.geral + ' (' + porcento(bom.notaGeral) + ')'
+            )
+          }
           melhorRef.current = null
         } else {
           registrar('Som forte, tipo não identificado', '')
@@ -250,6 +338,18 @@ export default function Ambiente({ aoVoltar }) {
           <div className="alerta-forte">
             <span className="alerta-icone">⚠️</span>
             <strong>Som detectado perto de você</strong>
+          </div>
+        )}
+
+        {transcrever && ligado && (
+          <div className="transcricao">
+            {!falaFinal && !falaParcial && (
+              <p className="transcricao-vazia">
+                Escutando. Se alguém falar perto do celular, o texto aparece aqui.
+              </p>
+            )}
+            {falaFinal && <p className="transcricao-texto">{falaFinal}</p>}
+            {falaParcial && <p className="transcricao-parcial">{falaParcial}</p>}
           </div>
         )}
 
@@ -294,6 +394,26 @@ export default function Ambiente({ aoVoltar }) {
           </button>
         )}
 
+        <button
+          className={transcrever ? 'principal' : 'secundario'}
+          onClick={alternarTranscricao}
+          disabled={!Reconhecimento}
+        >
+          {transcrever
+            ? '✅ Escrevendo o que falam'
+            : '📝 Escrever o que as pessoas falam'}
+        </button>
+
+        {transcrever && (
+          <div className="instrucao">
+            <p className="aviso-linha">
+              Com esta opção ligada, o áudio é enviado ao serviço de voz do
+              navegador (Google) para virar texto. A detecção dos outros sons
+              continua acontecendo só dentro do celular.
+            </p>
+          </div>
+        )}
+
         <div className="campo">
           <span className="campo-nome">Sensibilidade do alerta</span>
           <div className="abas">
@@ -333,10 +453,11 @@ export default function Ambiente({ aoVoltar }) {
       </div>
 
       <footer className="rodape">
-        O som é analisado dentro do seu celular. Nada é gravado nem enviado.
+        Os sons do ambiente são analisados dentro do seu celular e nada é gravado.
+        A escrita da fala, quando ligada, usa o serviço de voz do navegador.
         O tipo de som é uma possibilidade, não uma certeza.
         Só funciona com esta tela aberta.
       </footer>
     </div>
   )
-}
+                }
