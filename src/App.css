@@ -204,6 +204,10 @@ body {
   font-family: inherit;
 }
 
+.campo-input::placeholder {
+  color: #55708A;
+}
+
 .campo-input:focus {
   outline: none;
   border-color: #7FD1CC;
@@ -336,6 +340,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin-top: 20px;
 }
 
 .indicador {
@@ -376,3 +381,15 @@ body {
   color: #8AA4BC;
   word-break: break-word;
 }
+
+/* ----- Contatos ----- */
+
+.aviso-linha {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #8AA4BC;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
