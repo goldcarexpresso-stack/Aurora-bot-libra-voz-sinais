@@ -15,7 +15,7 @@ body {
   min-height: 100vh;
   max-width: 520px;
   margin: 0 auto;
-  padding: 14px 12px 20px;
+  padding: 14px 12px 84px;
   display: flex;
   flex-direction: column;
 }
@@ -751,4 +751,60 @@ body {
   font-size: 13px;
   color: #8AA4BC;
   line-height: 1.3;
+}
+
+/* ----- SOS ----- */
+
+.botao-sos {
+  padding: 22px 14px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  line-height: 1.5;
+  text-align: center;
+  color: #FFFFFF;
+  background: #B3261E;
+  border: 3px solid #FF6B5E;
+  border-radius: 18px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.botao-sos:active {
+  background: #E04236;
+  transform: scale(0.98);
+}
+
+.link-botao {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}
+
+.cartao-urgente {
+  background: #7A1D17;
+  border-color: #FF6B5E;
+  animation: pulsar 0.9s ease-in-out infinite alternate;
+}
+
+.cartao-urgente .pessoa-nome,
+.cartao-urgente .evento-detalhe {
+  color: #FFFFFF;
+}
+
+/* ----- Botão do VLibras no canto de baixo ----- */
+
+div[vw] {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 10px !important;
+  right: 10px !important;
+  left: auto !important;
+  transform: none !important;
+  z-index: 900 !important;
+}
+
+div[vw] .vw-access-button {
+  position: static !important;
+  transform: none !important;
   }
