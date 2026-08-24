@@ -881,3 +881,6 @@ div[vw] .vw-access-button {
   cursor: pointer;
   font-family: inherit;
 }
+body:has(.vigia) .tela {
+  padding-top: 150px;
+}
