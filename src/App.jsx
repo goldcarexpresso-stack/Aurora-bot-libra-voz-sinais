@@ -12,7 +12,7 @@ import Confianca from './Confianca.jsx'
 import Sos from './Sos.jsx'
 import Alertas from './Alertas.jsx'
 import Vigia from './Vigia.jsx'
-
+import Titulo from './Titulo.jsx'
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
@@ -168,10 +168,7 @@ export default function App() {
 
     return (
       <div className="tela">
-        <header className="topo">
-          <h1>AURORA</h1>
-          <p className="sub">A Luz que Traduz</p>
-        </header>
+        <Titulo sessao={sessao} />
 
         <nav className="menu">
           {MENU.map((item) => (
