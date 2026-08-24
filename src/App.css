@@ -813,3 +813,71 @@ div[vw] .vw-access-button {
   padding-right: 70px;
   padding-bottom: 8px;
 }
+/* ----- Aviso de SOS em qualquer tela ----- */
+
+.vigia {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 14px 12px;
+  background: #B3261E;
+  border-bottom: 3px solid #FF6B5E;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  animation: pulsar 0.9s ease-in-out infinite alternate;
+}
+
+.vigia-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vigia-nome {
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.vigia-id {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #FFD9D5;
+}
+
+.vigia-botoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.vigia-ver {
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0B1B2B;
+  background: #7FD1CC;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.vigia-fechar {
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: transparent;
+  border: 2px solid #FFFFFF;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
