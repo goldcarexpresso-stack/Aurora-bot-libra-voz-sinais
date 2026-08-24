@@ -118,6 +118,7 @@ export default function Alertas({ sessao, aoVoltar }) {
           </p>
         </div>
 
+        <Notificar sessao={sessao} />
         {erro && <p className="erro">{erro}</p>}
         {carregando && <p className="aviso-linha">Carregando...</p>}
 
