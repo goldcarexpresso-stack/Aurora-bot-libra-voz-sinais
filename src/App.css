@@ -893,3 +893,9 @@ body:has(.vigia) .tela {
   border: 2px solid #2A5170;
   border-radius: 16px;
 }
+.titulo-toque {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  cursor: default;
+}
