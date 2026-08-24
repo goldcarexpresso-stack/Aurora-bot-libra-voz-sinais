@@ -1,199 +1,754 @@
-import { useEffect, useState } from 'react'
-import { supabase, conectado } from './supabase.js'
-import Login from './Login.jsx'
-import Perfil from './Perfil.jsx'
-import Falar from './Falar.jsx'
-import Contatos from './Contatos.jsx'
-import Conversas from './Conversas.jsx'
-import Libras from './Libras.jsx'
-import Ambiente from './Ambiente.jsx'
-import Painel from './Painel.jsx'
-import Confianca from './Confianca.jsx'
-import Sos from './Sos.jsx'
-import Alertas from './Alertas.jsx'
-
-const MENU = [
-  { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
-  { id: 'falar', icone: '🎤', titulo: 'Falar' },
-  { id: 'conversas', icone: '💬', titulo: 'Minhas conversas' },
-  { id: 'contatos', icone: '👥', titulo: 'Contatos' },
-  { id: 'ambiente', icone: '👁️', titulo: 'Sentir o ambiente' },
-  { id: 'sos', icone: '🚨', titulo: 'SOS' },
-  { id: 'confianca', icone: '🔐', titulo: 'Contatos de confiança' },
-  { id: 'alertas', icone: '🔔', titulo: 'Alertas recebidos' },
-  { id: 'config', icone: '⚙️', titulo: 'Configurações', fase: 'Fase 6' },
-]
-
-export default function App() {
-  const [sessao, setSessao] = useState(null)
-  const [carregando, setCarregando] = useState(true)
-  const [aberto, setAberto] = useState(null)
-  const [noPerfil, setNoPerfil] = useState(false)
-  const [noPainel, setNoPainel] = useState(false)
-  const [dono, setDono] = useState(false)
-
-  useEffect(() => {
-    if (!conectado) {
-      setCarregando(false)
-      return
-    }
-
-    supabase.auth.getSession().then(({ data }) => {
-      setSessao(data.session)
-      setCarregando(false)
-    })
-
-    const { data: escuta } = supabase.auth.onAuthStateChange((_evento, nova) => {
-      setSessao(nova)
-      setAberto(null)
-      setNoPerfil(false)
-      setNoPainel(false)
-    })
-
-    return () => escuta.subscription.unsubscribe()
-  }, [])
-
-  useEffect(() => {
-    if (!sessao) {
-      setDono(false)
-      return
-    }
-
-    let vivo = true
-
-    supabase
-      .from('perfis')
-      .select('dono')
-      .eq('id', sessao.user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (vivo) setDono(Boolean(data && data.dono))
-      })
-
-    return () => {
-      vivo = false
-    }
-  }, [sessao])
-
-  if (!conectado) {
-    return (
-      <div className="tela">
-        <div className="aviso">
-          <span className="aviso-icone">⚠️</span>
-          <h2>Sem conexão com o banco</h2>
-          <p className="aviso-texto">
-            As chaves do Supabase não chegaram até o aplicativo.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (carregando) {
-    return (
-      <div className="tela">
-        <div className="aviso">
-          <span className="aviso-icone">🌅</span>
-          <p className="aviso-texto">Carregando...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!sessao) return <Login />
-
-  if (noPainel && dono) {
-    return <Painel aoVoltar={() => setNoPainel(false)} />
-  }
-
-  if (noPerfil) {
-    return <Perfil sessao={sessao} aoVoltar={() => setNoPerfil(false)} />
-  }
-
-  if (aberto && aberto.id === 'libras') {
-    return <Libras aoVoltar={() => setAberto(null)} />
-  }
-
-  if (aberto && aberto.id === 'falar') {
-    return <Falar aoVoltar={() => setAberto(null)} />
-  }
-
-  if (aberto && aberto.id === 'contatos') {
-    return <Contatos sessao={sessao} aoVoltar={() => setAberto(null)} />
-  }
-
-  if (aberto && aberto.id === 'conversas') {
-    return <Conversas sessao={sessao} aoVoltar={() => setAberto(null)} />
-  }
-
-  if (aberto && aberto.id === 'ambiente') {
-    return <Ambiente aoVoltar={() => setAberto(null)} />
-  }
-
-  if (aberto && aberto.id === 'sos') {
-    return <Sos sessao={sessao} aoVoltar={() => setAberto(null)} />
-  }
-
-  if (aberto && aberto.id === 'confianca') {
-    return <Confianca sessao={sessao} aoVoltar={() => setAberto(null)} />
-  }
-
-  if (aberto && aberto.id === 'alertas') {
-    return <Alertas sessao={sessao} aoVoltar={() => setAberto(null)} />
-  }
-
-  if (aberto) {
-    return (
-      <div className="tela">
-        <button className="voltar" onClick={() => setAberto(null)}>
-          ← Voltar
-        </button>
-        <div className="aviso">
-          <span className="aviso-icone">{aberto.icone}</span>
-          <h2>{aberto.titulo}</h2>
-          <p className="aviso-texto">Esta função ainda não foi construída.</p>
-          <p className="aviso-fase">Prevista para a {aberto.fase}</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="tela">
-      <header className="topo">
-        <h1>AURORA</h1>
-        <p className="sub">A Luz que Traduz</p>
-      </header>
-
-      <nav className="menu">
-        {MENU.map((item) => (
-          <button
-            key={item.id}
-            className={item.id === 'sos' ? 'card card-sos' : 'card'}
-            onClick={() => setAberto(item)}
-          >
-            <span className="card-icone">{item.icone}</span>
-            <span className="card-titulo">{item.titulo}</span>
-          </button>
-        ))}
-
-        <button className="card" onClick={() => setNoPerfil(true)}>
-          <span className="card-icone">👤</span>
-          <span className="card-titulo">Meu perfil</span>
-        </button>
-
-        {dono && (
-          <button className="card card-dono" onClick={() => setNoPainel(true)}>
-            <span className="card-icone">📊</span>
-            <span className="card-titulo">Painel do dono</span>
-          </button>
-        )}
-      </nav>
-
-      <footer className="rodape">
-        O SOS avisa seus contatos de confiança dentro da Aurora,
-        com o app aberto.
-      </footer>
-    </div>
-  )
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+
+body {
+  background: #0B1B2B;
+  color: #FFFFFF;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tela {
+  min-height: 100vh;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 14px 12px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.topo {
+  text-align: center;
+  padding: 4px 0 14px;
+}
+
+.topo h1 {
+  font-size: 30px;
+  letter-spacing: 5px;
+  font-weight: 800;
+}
+
+.sub {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #7FD1CC;
+  letter-spacing: 1px;
+}
+
+.menu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.card {
+  min-height: 88px;
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #14304A;
+  color: #FFFFFF;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.card:active {
+  transform: scale(0.96);
+  background: #1B3E5F;
+}
+
+.card:focus-visible {
+  outline: 3px solid #7FD1CC;
+  outline-offset: 2px;
+}
+
+.card-icone {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.card-titulo {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.card-sos {
+  grid-column: 1 / -1;
+  min-height: 62px;
+  background: #B3261E;
+  border-color: #FF6B5E;
+}
+
+.card-sos:active {
+  background: #CE3A31;
+}
+
+.card-sos .card-titulo {
+  font-size: 18px;
+  letter-spacing: 3px;
+}
+
+.card-dono {
+  grid-column: 1 / -1;
+  min-height: 62px;
+  background: #1877CC;
+  border-color: #4DA3F5;
+}
+
+.rodape {
+  margin-top: auto;
+  padding-top: 16px;
+  text-align: center;
+  font-size: 12px;
+  color: #8AA4BC;
+  line-height: 1.4;
+}
+
+.voltar {
+  align-self: flex-start;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.voltar:active {
+  background: #1B3E5F;
+}
+
+.aviso {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  padding: 20px 12px;
+}
+
+.aviso-icone {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.aviso h2 {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.aviso-texto {
+  font-size: 17px;
+  color: #E4EDF5;
+  line-height: 1.45;
+  max-width: 320px;
+}
+
+/* ----- Avisos em azul ----- */
+
+.instrucao,
+.dica-libras,
+.aviso-fase {
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #FFFFFF;
+  background: #1877CC;
+  border: 2px solid #4DA3F5;
+  border-radius: 14px;
+}
+
+.instrucao .aviso-linha {
+  color: #FFFFFF;
+  font-size: 15px;
+}
+
+.aviso-fase {
+  display: inline-block;
+  font-weight: 700;
+}
+
+/* ----- Formulários e perfil ----- */
+
+.form,
+.perfil {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.perfil {
+  margin-top: 16px;
+}
+
+.form-titulo {
+  font-size: 21px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-nome {
+  font-size: 14px;
+  font-weight: 700;
+  color: #8AA4BC;
+}
+
+.campo-input {
+  width: 100%;
+  padding: 13px;
+  font-size: 17px;
+  color: #FFFFFF;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 12px;
+  font-family: inherit;
+}
+
+.campo-input::placeholder {
+  color: #55708A;
+}
+
+.campo-input:focus {
+  outline: none;
+  border-color: #7FD1CC;
+}
+
+.area {
+  resize: vertical;
+  line-height: 1.4;
+}
+
+.erro {
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #FFFFFF;
+  background: #7A1D17;
+  border: 2px solid #FF6B5E;
+  border-radius: 12px;
+}
+
+.principal {
+  padding: 14px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #0B1B2B;
+  background: #7FD1CC;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.principal:active {
+  background: #63BDB7;
+}
+
+.principal:disabled {
+  opacity: 0.6;
+}
+
+.perigo {
+  color: #FFFFFF;
+  background: #B3261E;
+}
+
+.perigo:active {
+  background: #CE3A31;
+}
+
+.secundario {
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: transparent;
+  border: 2px solid #2A5170;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.secundario:active {
+  background: #14304A;
+}
+
+.chave {
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #8AA4BC;
+  background: transparent;
+  border: 2px dashed #2A5170;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.chave-ligada {
+  color: #FFFFFF;
+  background: #1877CC;
+  border: 2px solid #4DA3F5;
+}
+
+.perfil-linha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 13px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 14px;
+}
+
+.perfil-valor {
+  font-size: 18px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.perfil-id {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #7FD1CC;
+}
+
+.sair {
+  margin-top: 6px;
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #FF6B5E;
+  background: transparent;
+  border: 2px solid #7A1D17;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.sair:active {
+  background: #3A100D;
+}
+
+/* ----- Abas e blocos ----- */
+
+.abas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.aba {
+  padding: 12px 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #8AA4BC;
+  background: transparent;
+  border: 2px solid #2A5170;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.aba-ativa {
+  color: #0B1B2B;
+  background: #7FD1CC;
+  border-color: #7FD1CC;
+}
+
+.bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.indicador {
+  padding: 11px 14px;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+  color: #0B1B2B;
+  background: #7FD1CC;
+  border-radius: 12px;
+}
+
+.indicador-fraco {
+  font-size: 13px;
+  color: #8AA4BC;
+}
+
+.transcricao {
+  min-height: 150px;
+  padding: 16px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+}
+
+.transcricao-vazia {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #8AA4BC;
+}
+
+.transcricao-texto {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.frase + .frase {
+  margin-top: 10px;
+}
+
+.transcricao-parcial {
+  margin-top: 8px;
+  font-size: 20px;
+  line-height: 1.35;
+  color: #8AA4BC;
+  word-break: break-word;
+}
+
+/* ----- Caixa das falas ----- */
+
+.fala-caixa {
+  max-height: 210px;
+  overflow-y: auto;
+  padding: 14px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+}
+
+.fala-linha {
+  font-size: 17px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.fala-linha + .fala-linha {
+  margin-top: 10px;
+}
+
+.fala-hora {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7FD1CC;
+}
+
+.fala-parcial {
+  margin-top: 8px;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #8AA4BC;
+}
+
+/* ----- Contatos ----- */
+
+.aviso-linha {
+  font-size: 15px;
+  line-height: 1.45;
+  color: #8AA4BC;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.grupo-titulo {
+  font-size: 17px;
+  font-weight: 800;
+  color: #7FD1CC;
+}
+
+.pessoa {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+}
+
+.pessoa-nome {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.pessoa-id {
+  display: block;
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #7FD1CC;
+}
+
+.pessoa-botoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pessoa-botoes .sair {
+  margin-top: 0;
+}
+
+.pessoa-abrir {
+  width: 100%;
+  padding: 14px;
+  text-align: left;
+  background: #14304A;
+  color: #FFFFFF;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.pessoa-abrir:active {
+  background: #1B3E5F;
+}
+
+/* ----- Chat ----- */
+
+.chat-topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #2A5170;
+}
+
+.chat-topo .voltar {
+  align-self: auto;
+  padding: 10px 14px;
+  font-size: 18px;
+}
+
+.conversa {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0;
+  overflow-y: auto;
+}
+
+.balao {
+  align-self: flex-start;
+  max-width: 85%;
+  padding: 12px 14px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px 16px 16px 4px;
+}
+
+.balao-meu {
+  align-self: flex-end;
+  background: #1F5A63;
+  border-color: #2F8A94;
+  border-radius: 16px 16px 4px 16px;
+}
+
+.balao-texto {
+  font-size: 17px;
+  line-height: 1.4;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.balao-hora {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #8AA4BC;
+  text-align: right;
+}
+
+.escrever {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 2px solid #2A5170;
+}
+
+/* ----- Libras ----- */
+
+.tela-libras {
+  padding-top: 12px;
+}
+
+.libras-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.libras-topo .voltar {
+  align-self: auto;
+  padding: 10px 14px;
+  font-size: 18px;
+}
+
+.libras-titulo {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.para-traduzir {
+  padding: 14px;
+  background: #14304A;
+  border: 2px solid #7FD1CC;
+  border-radius: 16px;
+}
+
+.tela-libras .bloco {
+  margin-top: 12px;
+}
+
+/* ----- Sentir o ambiente ----- */
+
+.alerta-forte {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: #B3261E;
+  border: 3px solid #FF6B5E;
+  border-radius: 16px;
+  font-size: 18px;
+  line-height: 1.3;
+  animation: pulsar 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes pulsar {
+  from {
+    background: #B3261E;
+  }
+  to {
+    background: #E04236;
+  }
+}
+
+.alerta-icone {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.medidor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+}
+
+.medidor-barra {
+  height: 20px;
+  background: #0B1B2B;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.medidor-nivel {
+  height: 100%;
+  background: #7FD1CC;
+  border-radius: 999px;
+  transition: width 0.08s linear;
+}
+
+.medidor-nivel.alto {
+  background: #FF6B5E;
+}
+
+.medidor-texto {
+  font-size: 15px;
+  font-weight: 700;
+  color: #8AA4BC;
+}
+
+.evento {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 14px;
+}
+
+.evento-hora {
+  font-size: 14px;
+  font-weight: 800;
+  color: #7FD1CC;
+}
+
+.evento-texto {
+  font-size: 16px;
+}
+
+.evento-detalhe {
+  font-size: 13px;
+  color: #8AA4BC;
+  line-height: 1.35;
+}
+
+/* ----- Painel do dono ----- */
+
+.painel-grade {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.painel-caixa {
+  padding: 14px;
+  background: #14304A;
+  border: 2px solid #2A5170;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.painel-num {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  color: #7FD1CC;
+}
+
+.painel-rotulo {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #8AA4BC;
+  line-height: 1.3;
+  }
