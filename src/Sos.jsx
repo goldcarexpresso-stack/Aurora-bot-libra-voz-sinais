@@ -212,7 +212,7 @@ export default function Sos({ sessao, aoVoltar }) {
   return (
     <div className="tela">
       <div className="bloco">
-        <h2 className="form-titulo">Pedido enviado</h2>
+        <h2 className="form-titulo">{erro ? 'Pedido NÃO enviado' : 'Pedido enviado'}</h2>
 
         {erro && <p className="erro">{erro}</p>}
 
