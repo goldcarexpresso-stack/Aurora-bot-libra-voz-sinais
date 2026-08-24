@@ -8,6 +8,9 @@ import Conversas from './Conversas.jsx'
 import Libras from './Libras.jsx'
 import Ambiente from './Ambiente.jsx'
 import Painel from './Painel.jsx'
+import Confianca from './Confianca.jsx'
+import Sos from './Sos.jsx'
+import Alertas from './Alertas.jsx'
 
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
@@ -15,9 +18,10 @@ const MENU = [
   { id: 'conversas', icone: '💬', titulo: 'Minhas conversas' },
   { id: 'contatos', icone: '👥', titulo: 'Contatos' },
   { id: 'ambiente', icone: '👁️', titulo: 'Sentir o ambiente' },
-  { id: 'sos', icone: '🚨', titulo: 'SOS', fase: 'Fase 5' },
-  { id: 'confianca', icone: '🔐', titulo: 'Contatos de confiança', fase: 'Fase 5' },
-  { id: 'config', icone: '⚙️', titulo: 'Configurações', fase: 'Fase 1' },
+  { id: 'sos', icone: '🚨', titulo: 'SOS' },
+  { id: 'confianca', icone: '🔐', titulo: 'Contatos de confiança' },
+  { id: 'alertas', icone: '🔔', titulo: 'Alertas recebidos' },
+  { id: 'config', icone: '⚙️', titulo: 'Configurações', fase: 'Fase 6' },
 ]
 
 export default function App() {
@@ -126,6 +130,18 @@ export default function App() {
     return <Ambiente aoVoltar={() => setAberto(null)} />
   }
 
+  if (aberto && aberto.id === 'sos') {
+    return <Sos sessao={sessao} aoVoltar={() => setAberto(null)} />
+  }
+
+  if (aberto && aberto.id === 'confianca') {
+    return <Confianca sessao={sessao} aoVoltar={() => setAberto(null)} />
+  }
+
+  if (aberto && aberto.id === 'alertas') {
+    return <Alertas sessao={sessao} aoVoltar={() => setAberto(null)} />
+  }
+
   if (aberto) {
     return (
       <div className="tela">
@@ -175,7 +191,8 @@ export default function App() {
       </nav>
 
       <footer className="rodape">
-        SOS e contatos de confiança ainda não foram construídos.
+        O SOS avisa seus contatos de confiança dentro da Aurora,
+        com o app aberto.
       </footer>
     </div>
   )
