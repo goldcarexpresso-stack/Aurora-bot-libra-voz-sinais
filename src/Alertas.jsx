@@ -33,6 +33,7 @@ export default function Alertas({ sessao, aoVoltar }) {
       .from('sos')
       .select(SELECAO)
       .neq('autor_id', meuId)
+      .neq('situacao', 'visto')
       .order('criado_em', { ascending: false })
       .limit(30)
 
@@ -43,12 +44,7 @@ export default function Alertas({ sessao, aoVoltar }) {
     }
     setCarregando(false)
   }, [meuId])
-async function apagarTudo() {
-    const ids = pedidos.map((p) => p.id)
-    if (ids.length === 0) return
-    await supabase.from('sos').update({ situacao: 'visto' }).in('id', ids)
-    setPedidos([])
-}
+
   useEffect(() => {
     carregar()
 
@@ -68,9 +64,19 @@ async function apagarTudo() {
       supabase.removeChannel(canal)
     }
   }, [carregar])
-const abertos = pedidos.filter((p) => p.situacao === 'aberto')
+
+  async function apagarTudo() {
+    const ids = pedidos.map((p) => p.id)
+    if (ids.length === 0) return
+    await supabase.from('sos').update({ situacao: 'visto' }).in('id', ids)
+    setPedidos([])
+  }
+
+  const abertos = pedidos.filter((p) => p.situacao === 'aberto')
   const enganos = pedidos.filter((p) => p.situacao === 'engano')
-  const antigos = pedidos.filter((p) => p.situacao !== 'aberto')
+  const antigos = pedidos.filter(
+    (p) => p.situacao !== 'aberto' && p.situacao !== 'engano'
+  )
 
   function cartao(p, urgente) {
     return (
@@ -130,11 +136,19 @@ const abertos = pedidos.filter((p) => p.situacao === 'aberto')
             🧹 Limpar todos os alertas
           </button>
         )}
+
         {erro && <p className="erro">{erro}</p>}
         {carregando && <p className="aviso-linha">Carregando...</p>}
 
         {!carregando && pedidos.length === 0 && (
           <p className="aviso-linha">Nenhum alerta até agora.</p>
+        )}
+
+        {abertos.length > 0 && (
+          <section className="grupo">
+            <h3 className="grupo-titulo">Acontecendo agora</h3>
+            {abertos.map((p) => cartao(p, true))}
+          </section>
         )}
 
         {enganos.length > 0 && (
@@ -144,7 +158,9 @@ const abertos = pedidos.filter((p) => p.situacao === 'aberto')
                 <strong className="pessoa-nome">
                   {(p.autor && p.autor.nome) || 'Alguém'} — foi um engano
                 </strong>
-                <span className="evento-detalhe">O pedido foi cancelado por quem enviou.</span>
+                <span className="evento-detalhe">
+                  O pedido foi cancelado por quem enviou.
+                </span>
               </div>
             ))}
           </section>
