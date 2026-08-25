@@ -63,8 +63,8 @@ export default function Alertas({ sessao, aoVoltar }) {
       supabase.removeChannel(canal)
     }
   }, [carregar])
-
-  const abertos = pedidos.filter((p) => p.situacao === 'aberto')
+const abertos = pedidos.filter((p) => p.situacao === 'aberto')
+  const enganos = pedidos.filter((p) => p.situacao === 'engano')
   const antigos = pedidos.filter((p) => p.situacao !== 'aberto')
 
   function cartao(p, urgente) {
@@ -126,10 +126,16 @@ export default function Alertas({ sessao, aoVoltar }) {
           <p className="aviso-linha">Nenhum alerta até agora.</p>
         )}
 
-        {abertos.length > 0 && (
+        {enganos.length > 0 && (
           <section className="grupo">
-            <h3 className="grupo-titulo">Acontecendo agora</h3>
-            {abertos.map((p) => cartao(p, true))}
+            {enganos.map((p) => (
+              <div key={p.id} className="pessoa">
+                <strong className="pessoa-nome">
+                  {(p.autor && p.autor.nome) || 'Alguém'} — foi um engano
+                </strong>
+                <span className="evento-detalhe">O pedido foi cancelado por quem enviou.</span>
+              </div>
+            ))}
           </section>
         )}
 
