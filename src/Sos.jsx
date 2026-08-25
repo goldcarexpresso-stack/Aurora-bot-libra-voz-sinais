@@ -297,6 +297,10 @@ export default function Sos({ sessao, aoVoltar }) {
           📞 Ligar para 190
         </a>
 
+        <button className="secundario" onClick={foiEngano}>
+          Foi engano
+        </button>
+
         <button className="secundario" onClick={encerrar}>
           Encerrar pedido
         </button>
