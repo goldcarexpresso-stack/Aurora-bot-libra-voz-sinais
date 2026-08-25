@@ -43,7 +43,12 @@ export default function Alertas({ sessao, aoVoltar }) {
     }
     setCarregando(false)
   }, [meuId])
-
+async function apagarTudo() {
+    const ids = pedidos.map((p) => p.id)
+    if (ids.length === 0) return
+    await supabase.from('sos').update({ situacao: 'visto' }).in('id', ids)
+    setPedidos([])
+}
   useEffect(() => {
     carregar()
 
@@ -119,6 +124,12 @@ const abertos = pedidos.filter((p) => p.situacao === 'aberto')
         </div>
 
         <Notificar sessao={sessao} />
+
+        {pedidos.length > 0 && (
+          <button className="secundario" onClick={apagarTudo}>
+            🧹 Limpar todos os alertas
+          </button>
+        )}
         {erro && <p className="erro">{erro}</p>}
         {carregando && <p className="aviso-linha">Carregando...</p>}
 
