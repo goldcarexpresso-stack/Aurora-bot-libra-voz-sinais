@@ -142,6 +142,17 @@ export default function Sos({ sessao, aoVoltar }) {
     setEtapa('inicio')
   }
 
+  async function foiEngano() {
+    if (!pedido) return
+    await supabase
+      .from('sos')
+      .update({ situacao: 'engano', encerrado_em: new Date().toISOString() })
+      .eq('id', pedido.id)
+
+    setPedido(null)
+    setPassos([])
+    setEtapa('inicio')
+  }
   function textoAviso() {
     let t = '🚨 ' + (meuNome || 'Alguém') + ' pediu ajuda pela Aurora.'
     if (pedido && pedido.latitude && pedido.longitude) {
