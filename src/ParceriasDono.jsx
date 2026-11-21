@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 
-const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', video: '', tipo: 'banner', ate: '', imagem: '' }
+const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', video: '', botao: '', tipo: 'banner', ate: '', imagem: '' }
 
 function reduzirImagem(arquivo) {
   return new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ export default function ParceriasDono() {
     const [{ data: p }, { data: d }] = await Promise.all([
       supabase
         .from('parceiros')
-        .select('id, nome, categoria, descricao, link, video, imagem, tipo, ativo, ate, criado_em')
+        .select('id, nome, categoria, descricao, link, video, botao, imagem, tipo, ativo, ate, criado_em')
         .order('criado_em', { ascending: false }),
       supabase
         .from('parceria_pedidos')
@@ -67,6 +67,7 @@ export default function ParceriasDono() {
       descricao: p.descricao || '',
       link: p.link || '',
       video: p.video || '',
+      botao: p.botao || '',
       tipo: p.tipo || 'banner',
       ate: p.ate || '',
       imagem: p.imagem || '',
@@ -117,6 +118,7 @@ export default function ParceriasDono() {
       descricao: form.descricao.trim() || null,
       link: form.link.trim() || null,
       video: form.video.trim() || null,
+      botao: form.botao.trim() || null,
       tipo: form.tipo,
       ate: form.ate || null,
       imagem: form.imagem || null,
@@ -191,6 +193,11 @@ export default function ParceriasDono() {
         </label>
 
         <label className="campo">
+          <span className="campo-nome">Texto do botão (ex.: Faça um orçamento agora)</span>
+          <input className="campo-input" value={form.botao} onChange={(e) => mudar('botao', e.target.value)} />
+        </label>
+
+        <label className="campo">
           <span className="campo-nome">Link do vídeo (YouTube, Instagram ou TikTok, opcional)</span>
           <input className="campo-input" value={form.video} onChange={(e) => mudar('video', e.target.value)} />
         </label>
@@ -210,7 +217,7 @@ export default function ParceriasDono() {
 
         {erro && <p className="erro">{erro}</p>}
 
-        <button className="principal" type="submit" disabled={salvando}>
+        <button className="botao-neon" type="submit" disabled={salvando}>
           {salvando ? 'Salvando...' : editandoId ? 'Salvar alterações' : '+ Cadastrar parceiro'}
         </button>
 

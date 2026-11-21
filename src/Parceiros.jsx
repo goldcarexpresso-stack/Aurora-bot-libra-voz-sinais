@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
+import CartaoParceiro from './CartaoParceiro.jsx'
 
 export default function Parceiros({ sessao, aoVoltar }) {
   const [lista, setLista] = useState([])
@@ -15,7 +16,7 @@ export default function Parceiros({ sessao, aoVoltar }) {
     let vivo = true
     supabase
       .from('parceiros')
-      .select('id, nome, categoria, descricao, link, video, imagem, tipo, ate, ordem')
+      .select('id, nome, categoria, descricao, link, video, imagem, botao, tipo, ate, ordem')
       .order('ordem', { ascending: true })
       .order('criado_em', { ascending: false })
       .then(({ data }) => {
@@ -71,6 +72,14 @@ export default function Parceiros({ sessao, aoVoltar }) {
           influenciam alertas, SOS nem conversas.
         </p>
 
+        <button
+          className="botao-neon"
+          onClick={() => document.getElementById('form-parceria')?.scrollIntoView({ behavior: 'smooth' })}
+        >
+          🤝 QUER FAZER PARCERIA?
+          <small>Anuncie sua marca aqui</small>
+        </button>
+
         {carregando && <p className="aviso-linha">Carregando...</p>}
 
         {!carregando && lista.length === 0 && (
@@ -78,25 +87,10 @@ export default function Parceiros({ sessao, aoVoltar }) {
         )}
 
         {lista.map((p) => (
-          <div key={p.id} className="evento">
-            {p.imagem && <img src={p.imagem} alt={p.nome} className="parceiro-previa" />}
-            <span className="evento-hora">Parceiro · {p.categoria}</span>
-            <strong className="evento-texto">{p.nome}</strong>
-            {p.descricao && <span className="evento-detalhe">{p.descricao}</span>}
-            {p.link && (
-              <a className="principal" href={p.link} target="_blank" rel="noopener noreferrer">
-                Visitar
-              </a>
-            )}
-            {p.video && (
-              <a className="secundario" href={p.video} target="_blank" rel="noopener noreferrer">
-                ▶ Ver vídeo
-              </a>
-            )}
-          </div>
+          <CartaoParceiro key={p.id} p={p} />
         ))}
 
-        <section className="grupo">
+        <section className="grupo" id="form-parceria">
           <h3 className="grupo-titulo">Quer anunciar ou fazer parceria?</h3>
 
           {enviado ? (
@@ -107,36 +101,23 @@ export default function Parceiros({ sessao, aoVoltar }) {
             <form className="form" onSubmit={enviarPedido}>
               <label className="campo">
                 <span className="campo-nome">Seu nome</span>
-                <input
-                  className="campo-input"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                />
+                <input className="campo-input" value={nome} onChange={(e) => setNome(e.target.value)} />
               </label>
 
               <label className="campo">
                 <span className="campo-nome">Contato (WhatsApp, e-mail ou @)</span>
-                <input
-                  className="campo-input"
-                  value={contato}
-                  onChange={(e) => setContato(e.target.value)}
-                />
+                <input className="campo-input" value={contato} onChange={(e) => setContato(e.target.value)} />
               </label>
 
               <label className="campo">
                 <span className="campo-nome">Sua proposta (opcional)</span>
-                <textarea
-                  className="area"
-                  rows={4}
-                  value={mensagem}
-                  onChange={(e) => setMensagem(e.target.value)}
-                />
+                <textarea className="area" rows={4} value={mensagem} onChange={(e) => setMensagem(e.target.value)} />
               </label>
 
               {erro && <p className="erro">{erro}</p>}
 
-              <button className="principal" type="submit" disabled={enviando}>
-                {enviando ? 'Enviando...' : 'Enviar pedido'}
+              <button className="botao-neon" type="submit" disabled={enviando}>
+                {enviando ? 'Enviando...' : 'ENVIAR PEDIDO'}
               </button>
             </form>
           )}

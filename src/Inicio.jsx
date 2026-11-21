@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import Titulo from './Titulo.jsx'
 import { supabase } from './supabase.js'
+import CartaoParceiro from './CartaoParceiro.jsx'
 
 function FaixaParceiros() {
   const [banners, setBanners] = useState([])
@@ -10,7 +11,7 @@ function FaixaParceiros() {
     let vivo = true
     supabase
       .from('parceiros')
-      .select('id, nome, descricao, link, imagem')
+      .select('id, nome, descricao, link, imagem, video, botao')
       .eq('tipo', 'banner')
       .order('ordem', { ascending: true })
       .then(({ data }) => {
@@ -30,14 +31,7 @@ function FaixaParceiros() {
   if (banners.length === 0) return null
   const b = banners[i % banners.length]
 
-  return (
-    <a className="faixa-parceiro" href={b.link || undefined} target="_blank" rel="noopener noreferrer">
-      {b.imagem && <img src={b.imagem} alt={b.nome} className="faixa-parceiro-imagem" />}
-      <span className="faixa-parceiro-selo">Parceiro</span>
-      <strong>{b.nome}</strong>
-      {b.descricao && <span>{b.descricao}</span>}
-    </a>
-  )
+  return <CartaoParceiro p={b} compacto />
 }
 
 const ITENS = [

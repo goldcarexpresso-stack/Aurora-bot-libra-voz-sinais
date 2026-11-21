@@ -1255,3 +1255,124 @@ body:has(.vigia) .tela {
   border-radius: 12px;
   background: #0B1B2B;
 }
+
+/* ----- Cartão de parceiro (igual ao padrão do Arena) ----- */
+
+.cartao-parceiro {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+  background: linear-gradient(180deg, #F4F8FB 0%, #DCE6EE 100%);
+  border: 2px solid #4FC3D1;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  color: #0B1B2B;
+}
+
+.cartao-parceiro-selo {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #FFFFFF;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+}
+
+.cartao-parceiro-midia {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border: none;
+  border-radius: 12px;
+  background: #0B1B2B;
+}
+
+.cartao-parceiro.compacto .cartao-parceiro-midia {
+  aspect-ratio: 16 / 7;
+}
+
+.cartao-parceiro-texto strong {
+  display: block;
+  font-size: 15px;
+}
+
+.cartao-parceiro-texto span {
+  font-size: 13px;
+  color: #33506B;
+}
+
+.cartao-botao {
+  display: block;
+  padding: 12px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 900;
+  text-decoration: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.cartao-botao-wa {
+  background: linear-gradient(90deg, #1fbf5b, #25d366);
+  color: #04210f;
+}
+
+.cartao-botao-site {
+  background: linear-gradient(90deg, #00b4ff, #0066ff);
+  color: #FFFFFF;
+}
+
+/* ----- Botão neon de parceria (padrão do Arena) ----- */
+
+.botao-neon {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #FFFFFF;
+  text-shadow: 0 1px 4px #0007;
+  text-align: center;
+  background: linear-gradient(110deg, #00e5ff 0%, #b026ff 55%, #ff2bd6 100%);
+  border: 2px solid #e9f8ff;
+  border-radius: 18px;
+  cursor: pointer;
+  animation: ctaPulse 2.4s ease-in-out infinite 1.2s, neonBtn2 1.6s infinite 0.8s;
+}
+
+.botao-neon small {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 800;
+  opacity: 0.95;
+}
+
+.botao-neon:disabled {
+  opacity: 0.6;
+}
+
+@keyframes ctaPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.025); }
+}
+
+@keyframes neonBtn2 {
+  0%, 100% { box-shadow: 0 0 0 3px #b026ff55, 0 0 18px #b026ff; }
+  50% { box-shadow: 0 0 0 3px #e9f8ff, 0 0 38px #ff2bd6, 0 0 60px #00e5ff; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .botao-neon {
+    animation: none;
+  }
+}
