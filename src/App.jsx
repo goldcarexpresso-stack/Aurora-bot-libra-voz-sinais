@@ -17,6 +17,7 @@ import Parceiros from './Parceiros.jsx'
 import Dica from './Dica.jsx'
 import Ajuda from './Ajuda.jsx'
 import Configuracoes from './Configuracoes.jsx'
+import NovaSenha from './NovaSenha.jsx'
 import { aplicarPrefs, lerPrefs } from './prefs.js'
 
 aplicarPrefs(lerPrefs())
@@ -39,6 +40,7 @@ export default function App() {
   const [noPerfil, setNoPerfil] = useState(false)
   const [noPainel, setNoPainel] = useState(false)
   const [dono, setDono] = useState(false)
+  const [recuperando, setRecuperando] = useState(false)
 
   useEffect(() => {
     if (!conectado) {
@@ -51,7 +53,8 @@ export default function App() {
       setCarregando(false)
     })
 
-    const { data: escuta } = supabase.auth.onAuthStateChange((_evento, nova) => {
+    const { data: escuta } = supabase.auth.onAuthStateChange((evento, nova) => {
+      if (evento === 'PASSWORD_RECOVERY') setRecuperando(true)
       setSessao(nova)
       setAberto(null)
       setNoPerfil(false)
@@ -105,6 +108,10 @@ export default function App() {
     window.addEventListener('aurora-ir', irPara)
     return () => window.removeEventListener('aurora-ir', irPara)
   }, [dono])
+
+  if (recuperando && sessao) {
+    return <NovaSenha aoConcluir={() => setRecuperando(false)} />
+  }
 
   if (!conectado) {
     return (
