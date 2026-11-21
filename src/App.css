@@ -1560,3 +1560,205 @@ body:has(.vigia) .tela {
   color: #8AA4BC;
   opacity: 0.85;
 }
+
+/* ===== Telas específicas (acabamento premium) ===== */
+
+.abas {
+  display: flex;
+  gap: 8px;
+  padding: 6px;
+  background: rgba(20, 48, 74, 0.5);
+  border: 1px solid rgba(79, 195, 209, 0.35);
+  border-radius: 18px;
+}
+
+.aba {
+  flex: 1;
+  padding: 10px;
+  font-weight: 800;
+  color: #8AA4BC;
+  background: transparent;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.aba-ativa {
+  color: #FFFFFF;
+  background: linear-gradient(110deg, #00e5ff, #1877CC 55%, #b026ff);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.45);
+}
+
+.botao-sos {
+  background: radial-gradient(circle at 35% 30%, #FF8A80, #B3261E 70%);
+  border: 3px solid #FFD6D2;
+  box-shadow: 0 0 0 6px rgba(255, 107, 94, 0.25), 0 0 30px rgba(255, 107, 94, 0.6);
+  animation: neonSos 2.2s ease-in-out infinite;
+}
+
+@keyframes neonSos {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(255, 107, 94, 0.2), 0 0 24px rgba(255, 107, 94, 0.5); }
+  50% { box-shadow: 0 0 0 10px rgba(255, 107, 94, 0.3), 0 0 44px rgba(255, 107, 94, 0.85); }
+}
+
+.alerta-forte {
+  background: linear-gradient(160deg, rgba(179, 38, 30, 0.85), rgba(60, 10, 10, 0.9));
+  border: 1px solid #FF6B5E;
+  border-radius: 20px;
+  box-shadow: 0 0 24px rgba(255, 107, 94, 0.35);
+}
+
+.medidor {
+  padding: 14px;
+  background: rgba(20, 48, 74, 0.55);
+  border: 1px solid rgba(79, 195, 209, 0.35);
+  border-radius: 20px;
+}
+
+.medidor-barra {
+  height: 14px;
+  background: #0B1B2B;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.medidor-nivel {
+  background: linear-gradient(90deg, #00e5ff, #1877CC, #b026ff);
+  border-radius: 10px;
+}
+
+.transcricao,
+.fala-caixa {
+  padding: 14px;
+  background: rgba(20, 48, 74, 0.55);
+  border: 1px solid rgba(79, 195, 209, 0.35);
+  border-radius: 20px;
+}
+
+.indicador {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #A9D9E6;
+  background: rgba(0, 229, 255, 0.12);
+  border: 1px solid rgba(0, 229, 255, 0.45);
+  border-radius: 999px;
+}
+
+.chat-topo {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 10px 0;
+  background: rgba(11, 27, 43, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.conversa {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.balao {
+  max-width: 78%;
+  padding: 10px 14px;
+  align-self: flex-start;
+  background: linear-gradient(180deg, #F4F8FB, #DCE6EE);
+  color: #0B1B2B;
+  border: 1px solid #4FC3D1;
+  border-radius: 18px 18px 18px 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.balao-meu {
+  align-self: flex-end;
+  background: linear-gradient(110deg, #00e5ff, #1877CC);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 18px 18px 6px 18px;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.35);
+}
+
+.balao-hora {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.escrever {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(20, 48, 74, 0.9);
+  border: 1px solid rgba(79, 195, 209, 0.45);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+}
+
+.perfil-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 4px;
+  border-bottom: 1px solid #2A5170;
+}
+
+.perfil-valor {
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+.perfil-id {
+  font-family: ui-monospace, monospace;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #7FD1CC;
+}
+
+.sair {
+  padding: 12px;
+  font-weight: 800;
+  color: #FF9A8F;
+  background: rgba(179, 38, 30, 0.12);
+  border: 1px solid #FF6B5E;
+  border-radius: 14px;
+}
+
+.link-botao {
+  color: #7FD1CC;
+  border-color: rgba(79, 195, 209, 0.6);
+}
+
+.vigia {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  padding: 14px;
+  background: linear-gradient(90deg, #B3261E, #E04236);
+  color: #FFFFFF;
+  box-shadow: 0 6px 30px rgba(255, 107, 94, 0.6);
+  animation: neonSos 2.2s ease-in-out infinite;
+}
+
+.pessoa-abrir {
+  color: #00e5ff;
+  font-size: 22px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .botao-sos,
+  .vigia {
+    animation: none;
+  }
+}
