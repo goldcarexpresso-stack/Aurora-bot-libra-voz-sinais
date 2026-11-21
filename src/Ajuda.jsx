@@ -8,7 +8,8 @@ function semAcento(t) {
     .replace(/[̀-ͯ]/g, '')
 }
 
-export default function Ajuda({ telaAtual = 'inicio' }) {
+export default function Ajuda({ telaAtual = 'inicio', dono = false }) {
+  const TEMAS = TOPICOS.filter((t) => t.id !== 'painel' || dono)
   const [aberto, setAberto] = useState(false)
   const [busca, setBusca] = useState('')
   const [escolhido, setEscolhido] = useState(null)
@@ -17,13 +18,13 @@ export default function Ajuda({ telaAtual = 'inicio' }) {
     const q = semAcento(busca).trim()
     if (!q) return []
     const palavras = q.split(/\s+/).filter((w) => w.length > 2)
-    return TOPICOS.filter((t) => {
+    return TEMAS.filter((t) => {
       const texto = semAcento(
         [t.titulo, ...(t.palavras || []), t.dica, ...(t.duvida ? [t.duvida.p, t.duvida.r] : [])].join(' ')
       )
       return palavras.some((w) => texto.includes(w))
     })
-  }, [busca])
+  }, [busca, dono])
 
   function abrir() {
     setBusca('')
@@ -50,8 +51,8 @@ export default function Ajuda({ telaAtual = 'inicio' }) {
     )
   }
 
-  const topico = TOPICOS.find((t) => t.id === escolhido)
-  const lista = busca.trim() && achados.length ? achados : TOPICOS
+  const topico = TEMAS.find((t) => t.id === escolhido)
+  const lista = busca.trim() && achados.length ? achados : TEMAS
 
   return (
     <div className="ajd-fundo" onClick={fechar}>

@@ -222,7 +222,7 @@ export default function App() {
       <Vigia sessao={sessao} aoAbrir={abrirAlertas} />
       <Dica telaAtual={telaAtual} />
       {conteudo()}
-      <Ajuda telaAtual={telaAtual} />
+      <Ajuda telaAtual={telaAtual} dono={dono} />
     </>
   )
 }
