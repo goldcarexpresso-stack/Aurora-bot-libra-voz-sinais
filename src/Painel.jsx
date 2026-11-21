@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
+import ParceriasDono from './ParceriasDono.jsx'
 
 function dataHora(iso) {
   try {
@@ -191,6 +192,8 @@ export default function Painel({ aoVoltar }) {
           </>
         )}
       </div>
+
+        {dados && <ParceriasDono />}
 
       <footer className="rodape">
         Estes números vêm direto do banco e só abrem para a conta dona.
