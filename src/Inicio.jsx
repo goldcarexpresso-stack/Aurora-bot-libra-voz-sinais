@@ -31,7 +31,18 @@ function FaixaParceiros() {
   if (banners.length === 0) return null
   const b = banners[i % banners.length]
 
-  return <CartaoParceiro p={b} compacto />
+  return (
+    <div className="faixa-wrap">
+      <CartaoParceiro p={b} compacto />
+      {banners.length > 1 && (
+        <div className="bdots-aurora">
+          {banners.map((_, k) => (
+            <i key={k} className={k === i % banners.length ? 'on' : ''} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 const ITENS = [
@@ -44,6 +55,7 @@ const ITENS = [
 const AMBIENTE = { id: 'ambiente', icone: '👁️', titulo: 'Sentir o ambiente' }
 const SOS = { id: 'sos', icone: '🚨', titulo: 'SOS' }
 const ALERTAS = { id: 'alertas', icone: '🔔', titulo: 'Alertas recebidos' }
+const PARCEIROS = { id: 'parceiros', icone: '🤝', titulo: 'Parceiros e divulgação' }
 
 const LISTA = [
   { id: 'confianca', icone: '🔐', titulo: 'Contatos de confiança' },
@@ -58,6 +70,11 @@ export default function Inicio({ sessao, dono, aoAbrir, aoPerfil, aoPainel }) {
       <Titulo sessao={sessao} />
 
       <FaixaParceiros />
+
+      <button className="botao-neon" onClick={() => aoAbrir(PARCEIROS)}>
+        📣 ANUNCIE AQUI
+        <small>Sua marca em destaque no Aurora</small>
+      </button>
 
       <nav className="inicio-grade">
         {ITENS.map((item) => (

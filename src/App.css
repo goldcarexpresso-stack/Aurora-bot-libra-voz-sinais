@@ -1376,3 +1376,65 @@ body:has(.vigia) .tela {
     animation: none;
   }
 }
+
+/* ----- Chamada que pulsa e acende (ritmo lento, sem piscar rápido) ----- */
+
+.cartao-botao-wa {
+  animation: neonWa 1.8s ease-in-out infinite;
+}
+
+.cartao-botao-site {
+  animation: neonSite 1.8s ease-in-out infinite;
+}
+
+.cartao-parceiro {
+  animation: neonBorda 2.4s ease-in-out infinite;
+}
+
+.faixa-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.bdots-aurora {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.bdots-aurora i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8AA4BC;
+}
+
+.bdots-aurora i.on {
+  width: 18px;
+  border-radius: 4px;
+  background: #00e5ff;
+}
+
+@keyframes neonWa {
+  0%, 100% { box-shadow: 0 0 0 2px #25d36655, 0 0 14px #25d366aa; }
+  50% { box-shadow: 0 0 0 3px #b8ffd0, 0 0 30px #25d366, 0 0 46px #25d36688; }
+}
+
+@keyframes neonSite {
+  0%, 100% { box-shadow: 0 0 0 2px #00b4ff55, 0 0 14px #00b4ffaa; }
+  50% { box-shadow: 0 0 0 3px #d8f4ff, 0 0 30px #00b4ff, 0 0 46px #00e5ff88; }
+}
+
+@keyframes neonBorda {
+  0%, 100% { border-color: #4FC3D1; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), 0 0 10px #4FC3D155; }
+  50% { border-color: #00e5ff; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), 0 0 26px #00e5ffaa, 0 0 40px #b026ff66; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cartao-botao-wa,
+  .cartao-botao-site,
+  .cartao-parceiro {
+    animation: none;
+  }
+}
