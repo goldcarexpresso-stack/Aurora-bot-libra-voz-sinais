@@ -1235,3 +1235,23 @@ body:has(.vigia) .tela {
   border-radius: 10px;
   background: #FFFFFF;
 }
+
+/* ----- Imagem preenche a área (corte automático) ----- */
+
+.faixa-parceiro-imagem {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 12px;
+  background: #0B1B2B;
+}
+
+.parceiro-previa {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 12px;
+  background: #0B1B2B;
+}

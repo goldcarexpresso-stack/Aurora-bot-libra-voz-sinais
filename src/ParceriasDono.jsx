@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 
-const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', tipo: 'banner', ate: '', imagem: '' }
+const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', video: '', tipo: 'banner', ate: '', imagem: '' }
 
 function reduzirImagem(arquivo) {
   return new Promise((resolve, reject) => {
@@ -29,6 +29,7 @@ export default function ParceriasDono() {
   const [parceiros, setParceiros] = useState([])
   const [pedidos, setPedidos] = useState([])
   const [form, setForm] = useState(VAZIO)
+  const [editandoId, setEditandoId] = useState(null)
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [enviandoImagem, setEnviandoImagem] = useState(false)
@@ -37,7 +38,7 @@ export default function ParceriasDono() {
     const [{ data: p }, { data: d }] = await Promise.all([
       supabase
         .from('parceiros')
-        .select('id, nome, categoria, descricao, link, imagem, tipo, ativo, ate, criado_em')
+        .select('id, nome, categoria, descricao, link, video, imagem, tipo, ativo, ate, criado_em')
         .order('criado_em', { ascending: false }),
       supabase
         .from('parceria_pedidos')
@@ -55,6 +56,27 @@ export default function ParceriasDono() {
 
   function mudar(campo, valor) {
     setForm((atual) => ({ ...atual, [campo]: valor }))
+  }
+
+  function iniciarEdicao(p) {
+    setErro('')
+    setEditandoId(p.id)
+    setForm({
+      nome: p.nome || '',
+      categoria: p.categoria || '',
+      descricao: p.descricao || '',
+      link: p.link || '',
+      video: p.video || '',
+      tipo: p.tipo || 'banner',
+      ate: p.ate || '',
+      imagem: p.imagem || '',
+    })
+  }
+
+  function cancelarEdicao() {
+    setEditandoId(null)
+    setForm(VAZIO)
+    setErro('')
   }
 
   async function escolherImagem(e) {
@@ -80,7 +102,7 @@ export default function ParceriasDono() {
     }
   }
 
-  async function cadastrar(e) {
+  async function salvar(e) {
     e.preventDefault()
     setErro('')
 
@@ -89,16 +111,21 @@ export default function ParceriasDono() {
       return
     }
 
-    setSalvando(true)
-    const { error } = await supabase.from('parceiros').insert({
+    const dados = {
       nome: form.nome.trim(),
       categoria: form.categoria.trim() || 'Parceiro',
       descricao: form.descricao.trim() || null,
       link: form.link.trim() || null,
+      video: form.video.trim() || null,
       tipo: form.tipo,
       ate: form.ate || null,
       imagem: form.imagem || null,
-    })
+    }
+
+    setSalvando(true)
+    const { error } = editandoId
+      ? await supabase.from('parceiros').update(dados).eq('id', editandoId)
+      : await supabase.from('parceiros').insert(dados)
     setSalvando(false)
 
     if (error) {
@@ -106,6 +133,7 @@ export default function ParceriasDono() {
       return
     }
 
+    setEditandoId(null)
     setForm(VAZIO)
     carregar()
   }
@@ -117,6 +145,7 @@ export default function ParceriasDono() {
 
   async function apagar(p) {
     await supabase.from('parceiros').delete().eq('id', p.id)
+    if (editandoId === p.id) cancelarEdicao()
     carregar()
   }
 
@@ -131,7 +160,9 @@ export default function ParceriasDono() {
     <section className="grupo">
       <h3 className="grupo-titulo">Parcerias e divulgação</h3>
 
-      <form className="form" onSubmit={cadastrar}>
+      <form className="form" onSubmit={salvar}>
+        <p className="aviso-linha">{editandoId ? 'Editando parceiro' : 'Novo parceiro'}</p>
+
         <label className="campo">
           <span className="campo-nome">Nome do parceiro</span>
           <input className="campo-input" value={form.nome} onChange={(e) => mudar('nome', e.target.value)} />
@@ -143,7 +174,7 @@ export default function ParceriasDono() {
         </label>
 
         <label className="campo">
-          <span className="campo-nome">Imagem do banner (opcional)</span>
+          <span className="campo-nome">Imagem do banner (o app ajusta sozinho para preencher a faixa)</span>
           <input type="file" accept="image/*" onChange={escolherImagem} disabled={enviandoImagem} />
           {enviandoImagem && <span className="aviso-linha">Enviando imagem...</span>}
           {form.imagem && <img src={form.imagem} alt="" className="parceiro-previa" />}
@@ -157,6 +188,11 @@ export default function ParceriasDono() {
         <label className="campo">
           <span className="campo-nome">Link (site, WhatsApp ou Instagram)</span>
           <input className="campo-input" value={form.link} onChange={(e) => mudar('link', e.target.value)} />
+        </label>
+
+        <label className="campo">
+          <span className="campo-nome">Link do vídeo (YouTube, Instagram ou TikTok, opcional)</span>
+          <input className="campo-input" value={form.video} onChange={(e) => mudar('video', e.target.value)} />
         </label>
 
         <label className="campo">
@@ -175,8 +211,14 @@ export default function ParceriasDono() {
         {erro && <p className="erro">{erro}</p>}
 
         <button className="principal" type="submit" disabled={salvando}>
-          {salvando ? 'Salvando...' : '+ Cadastrar parceiro'}
+          {salvando ? 'Salvando...' : editandoId ? 'Salvar alterações' : '+ Cadastrar parceiro'}
         </button>
+
+        {editandoId && (
+          <button className="secundario" type="button" onClick={cancelarEdicao}>
+            Cancelar edição
+          </button>
+        )}
       </form>
 
       <h3 className="grupo-titulo">Parceiros cadastrados</h3>
@@ -190,6 +232,9 @@ export default function ParceriasDono() {
           <strong className="evento-texto">{p.nome}</strong>
           <span className="evento-detalhe">{p.categoria}</span>
           <div className="pessoa-botoes">
+            <button className="secundario" onClick={() => iniciarEdicao(p)}>
+              Editar
+            </button>
             <button className="secundario" onClick={() => alternarAtivo(p)}>
               {p.ativo ? 'Pausar' : 'Ativar'}
             </button>
