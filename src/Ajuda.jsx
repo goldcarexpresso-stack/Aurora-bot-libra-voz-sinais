@@ -19,7 +19,7 @@ export default function Ajuda({ telaAtual = 'inicio' }) {
     const palavras = q.split(/\s+/).filter((w) => w.length > 2)
     return TOPICOS.filter((t) => {
       const texto = semAcento(
-        [t.titulo, ...(t.palavras || []), ...(t.duvidas || []).flatMap((d) => [d.p, d.r])].join(' ')
+        [t.titulo, ...(t.palavras || []), t.dica, ...(t.duvida ? [t.duvida.p, t.duvida.r] : [])].join(' ')
       )
       return palavras.some((w) => texto.includes(w))
     })
@@ -37,6 +37,11 @@ export default function Ajuda({ telaAtual = 'inicio' }) {
     setEscolhido(null)
   }
 
+  function irParaTela(t) {
+    fechar()
+    window.dispatchEvent(new CustomEvent('aurora-ir', { detail: t.destino || t.id }))
+  }
+
   if (!aberto) {
     return (
       <button className="ajuda-flutuante" onClick={abrir}>
@@ -46,88 +51,91 @@ export default function Ajuda({ telaAtual = 'inicio' }) {
   }
 
   const topico = TOPICOS.find((t) => t.id === escolhido)
-  const mostrarLista = !topico
+  const lista = busca.trim() && achados.length ? achados : TOPICOS
 
   return (
-    <div className="ajuda-fundo" onClick={fechar}>
-      <div className="ajuda-folha" onClick={(e) => e.stopPropagation()}>
-        <div className="ajuda-topo">
-          <strong>Ajuda do Aurora</strong>
-          <button className="ajuda-fechar" onClick={fechar} aria-label="Fechar">
+    <div className="ajd-fundo" onClick={fechar}>
+      <div className="ajd-folha" onClick={(e) => e.stopPropagation()}>
+        <div className="ajd-topo">
+          {topico ? (
+            <button className="ajd-voltar" onClick={() => setEscolhido(null)}>
+              ‹ Voltar
+            </button>
+          ) : (
+            <strong className="ajd-titulo">Ajuda</strong>
+          )}
+          <button className="ajd-fechar" onClick={fechar} aria-label="Fechar">
             ✕
           </button>
         </div>
 
-        <input
-          className="campo-input"
-          placeholder="Digite sua dúvida, ex.: como ligar o aviso"
-          value={busca}
-          onChange={(e) => {
-            setBusca(e.target.value)
-            setEscolhido(null)
-          }}
-        />
-
-        {mostrarLista && busca.trim() && achados.length === 0 && (
-          <p className="aviso-linha">Não encontrei. Escolha um tema abaixo.</p>
-        )}
-
-        {mostrarLista && (
-          <div className="ajuda-lista">
-            {(busca.trim() && achados.length ? achados : TOPICOS).map((t) => (
-              <button key={t.id} className="ajuda-item" onClick={() => setEscolhido(t.id)}>
-                <span className="ajuda-item-icone">{t.icone}</span>
-                <span>
-                  {t.titulo}
-                  {t.id === telaAtual && <em className="ajuda-voce"> · você está aqui</em>}
-                </span>
-                <span className="ajuda-seta">›</span>
-              </button>
-            ))}
-          </div>
+        {!topico && (
+          <>
+            <input
+              className="ajd-busca"
+              placeholder="🔎  O que você quer fazer?"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+            />
+            {busca.trim() && achados.length === 0 && (
+              <p className="ajd-vazio">Não achei. Escolha um tema:</p>
+            )}
+            <div className="ajd-grade">
+              {lista.map((t) => (
+                <button key={t.id} className="ajd-tile" onClick={() => setEscolhido(t.id)}>
+                  <span className="ajd-tile-icone">{t.icone}</span>
+                  <span className="ajd-tile-nome">{t.titulo}</span>
+                  {t.id === telaAtual && <span className="ajd-aqui">aqui</span>}
+                </button>
+              ))}
+            </div>
+          </>
         )}
 
         {topico && (
-          <div className="ajuda-detalhe">
-            <button className="voltar" onClick={() => setEscolhido(null)}>
-              ← Todas as ajudas
-            </button>
+          <div className="ajd-detalhe">
+            <div className="ajd-hero">
+              <span className="ajd-hero-icone">{topico.icone}</span>
+              <div>
+                <h3>{topico.titulo}</h3>
+                <p>{topico.dica}</p>
+              </div>
+            </div>
 
-            <h3 className="ajuda-titulo">
-              <span>{topico.icone}</span> {topico.titulo}
-            </h3>
-            <p className="ajuda-dica">{topico.dica}</p>
+            <h4 className="ajd-rotulo">Toque e use</h4>
+            <div className="ajd-acoes">
+              {topico.acoes.map((a) => (
+                <div key={a.nome} className="ajd-acao">
+                  <span className="ajd-acao-icone">{a.icone}</span>
+                  <strong>{a.nome}</strong>
+                  <small>{a.faz}</small>
+                </div>
+              ))}
+            </div>
 
-            {topico.botoes.length > 0 && (
-              <>
-                <h4 className="grupo-titulo">Botões desta tela</h4>
-                {topico.botoes.map((b) => (
-                  <div key={b.nome} className="ajuda-botao-linha">
-                    <strong>{b.nome}</strong>
-                    <span>{b.faz}</span>
-                  </div>
-                ))}
-              </>
-            )}
-
-            <h4 className="grupo-titulo">Passo a passo</h4>
-            <ol className="ajuda-passos">
+            <h4 className="ajd-rotulo">Em 3 passos</h4>
+            <ol className="ajd-passos">
               {topico.passos.map((p) => (
                 <li key={p}>{p}</li>
               ))}
             </ol>
 
-            {topico.duvidas.length > 0 && (
-              <>
-                <h4 className="grupo-titulo">Dúvidas comuns</h4>
-                {topico.duvidas.map((d) => (
-                  <details key={d.p} className="ajuda-duvida">
-                    <summary>{d.p}</summary>
-                    <p>{d.r}</p>
-                  </details>
-                ))}
-              </>
+            {topico.duvida && (
+              <details className="ajd-duvida">
+                <summary>{topico.duvida.p}</summary>
+                <p>{topico.duvida.r}</p>
+              </details>
             )}
+
+            {topico.id === telaAtual ? (
+              <button className="botao-neon" onClick={fechar}>
+                Entendi
+              </button>
+            ) : !topico.semTela ? (
+              <button className="botao-neon" onClick={() => irParaTela(topico)}>
+                Ir para esta tela →
+              </button>
+            ) : null}
           </div>
         )}
       </div>
