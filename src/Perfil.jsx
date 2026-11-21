@@ -40,6 +40,19 @@ export default function Perfil({ sessao, aoVoltar }) {
     }
   }
 
+  async function compartilhar() {
+    const texto = `Me adicione na Aurora pelo meu ID: ${perfil.aurora_id}`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Meu ID na Aurora', text: texto })
+      } catch {
+        // o usuário cancelou o compartilhamento
+      }
+    } else {
+      copiar()
+    }
+  }
+
   async function sair() {
     await supabase.auth.signOut()
   }
@@ -59,19 +72,24 @@ export default function Perfil({ sessao, aoVoltar }) {
 
         {perfil && (
           <>
+            <section className="id-cartao">
+              <span className="id-rotulo">Seu ID AURORA</span>
+              <strong className="id-codigo">{perfil.aurora_id}</strong>
+              <div className="id-botoes">
+                <button className="id-btn" onClick={copiar}>
+                  {copiado ? '✓ Copiado' : '📋 Copiar'}
+                </button>
+                <button className="id-btn id-btn-forte" onClick={compartilhar}>
+                  📤 Compartilhar
+                </button>
+              </div>
+              <small className="id-dica">Quem tiver esse ID pode te adicionar.</small>
+            </section>
+
             <div className="perfil-linha">
               <span className="campo-nome">Nome</span>
               <strong className="perfil-valor">{perfil.nome || 'Sem nome'}</strong>
             </div>
-
-            <div className="perfil-linha">
-              <span className="campo-nome">Meu ID da Aurora</span>
-              <strong className="perfil-id">{perfil.aurora_id}</strong>
-            </div>
-
-            <button className="secundario" onClick={copiar}>
-              {copiado ? 'Copiado!' : 'Copiar meu ID'}
-            </button>
 
             <div className="perfil-linha">
               <span className="campo-nome">E-mail</span>
@@ -85,9 +103,7 @@ export default function Perfil({ sessao, aoVoltar }) {
         </button>
       </div>
 
-      <footer className="rodape">
-        Compartilhe seu ID com quem você quiser que possa te encontrar na Aurora.
-      </footer>
+      <footer className="rodape">Compartilhe seu ID com quem você quiser que possa te encontrar na Aurora.</footer>
     </div>
   )
 }

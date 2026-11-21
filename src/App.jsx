@@ -16,6 +16,10 @@ import Inicio from './Inicio.jsx'
 import Parceiros from './Parceiros.jsx'
 import Dica from './Dica.jsx'
 import Ajuda from './Ajuda.jsx'
+import Configuracoes from './Configuracoes.jsx'
+import { aplicarPrefs, lerPrefs } from './prefs.js'
+
+aplicarPrefs(lerPrefs())
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
@@ -181,6 +185,10 @@ export default function App() {
 
     if (aberto && aberto.id === 'parceiros') {
       return <Parceiros sessao={sessao} aoVoltar={() => setAberto(null)} />
+    }
+
+    if (aberto && aberto.id === 'config') {
+      return <Configuracoes sessao={sessao} aoVoltar={() => setAberto(null)} />
     }
 
     if (aberto && aberto.id === 'alertas') {

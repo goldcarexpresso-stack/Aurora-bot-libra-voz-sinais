@@ -61,7 +61,7 @@ const LISTA = [
   { id: 'confianca', icone: '🔐', titulo: 'Contatos de confiança' },
   { id: 'alertas', icone: '🔔', titulo: 'Alertas recebidos' },
   { id: 'parceiros', icone: '🤝', titulo: 'Parceiros e divulgação' },
-  { id: 'config', icone: '⚙️', titulo: 'Configurações', fase: 'Fase 6' },
+  { id: 'config', icone: '⚙️', titulo: 'Configurações' },
 ]
 
 export default function Inicio({ sessao, dono, aoAbrir, aoPerfil, aoPainel }) {

@@ -1,4 +1,5 @@
 import { TOPICOS } from './ajuda.js'
+import { lerPrefs } from './prefs.js'
 
 const DIAS_DE_DICA = 14
 
@@ -28,6 +29,7 @@ export default function Dica({ telaAtual }) {
   const dias = (Date.now() - Number(primeiro)) / 86400000
   const topico = TOPICOS.find((t) => t.id === telaAtual)
 
+  if (!lerPrefs().dicas) return null
   if (!topico || dias > DIAS_DE_DICA || ler('aurora_dica_' + telaAtual)) return null
 
   function entendi() {
