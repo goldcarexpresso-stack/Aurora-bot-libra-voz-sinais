@@ -18,7 +18,7 @@ export const TOPICOS = [
     ],
     duvidas: [
       { p: 'Por que não vejo o Painel do dono?', r: 'Ele só aparece para a conta dona do aplicativo.' },
-      { p: 'O que é o faixa de parceiros em cima?', r: 'São apoiadores que ajudam a manter o Aurora gratuito. Eles não recebem dados de usuários.' },
+      { p: 'O que são os parceiros que aparecem em cima?', r: 'São apoiadores que ajudam a manter o Aurora gratuito. Eles não recebem dados de usuários.' },
     ],
     palavras: ['inicio', 'início', 'home', 'menu', 'tela inicial', 'principal', 'cartoes', 'cartões'],
   },
@@ -231,7 +231,7 @@ export const TOPICOS = [
     ],
     passos: ['Para ver seu ID, abra Meu perfil.', 'Para sair, toque em Sair da conta.'],
     duvidas: [
-      { p: 'Esqueci minha senha.', r: 'Na tela de entrada, use a opção de recuperar senha, ou fale com quem administra o app.' },
+      { p: 'Esqueci minha senha.', r: 'Por enquanto o app ainda não tem recuperação de senha pelo celular. Fale com quem administra o Aurora para trocar a senha.' },
     ],
     palavras: ['perfil', 'id', 'conta', 'sair', 'meu nome', 'senha'],
   },
