@@ -1043,3 +1043,140 @@ body:has(.vigia) .tela {
 .barra-ativo {
   color: #1877CC;
 }
+
+/* ----- Padrão claro para todas as telas (combina com a tela inicial) ----- */
+
+.tela {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(127, 209, 204, 0.35), transparent 55%),
+    radial-gradient(ellipse at 85% 10%, rgba(139, 92, 246, 0.35), transparent 50%),
+    #0B1B2B;
+}
+
+.voltar {
+  background: linear-gradient(180deg, #F4F8FB 0%, #DCE6EE 100%);
+  color: #0B1B2B;
+  border: 2px solid #4FC3D1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.voltar:active {
+  background: #DCE6EE;
+  transform: scale(0.97);
+}
+
+.principal {
+  background: linear-gradient(90deg, #14B8C4, #1877CC);
+  color: #FFFFFF;
+}
+
+.secundario {
+  background: linear-gradient(180deg, #F4F8FB 0%, #DCE6EE 100%);
+  color: #0B1B2B;
+  border: 2px solid #4FC3D1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.secundario:active {
+  background: #DCE6EE;
+}
+
+.evento,
+.painel-caixa,
+.pessoa {
+  background: linear-gradient(180deg, #F4F8FB 0%, #DCE6EE 100%);
+  border: 2px solid #4FC3D1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.evento-hora,
+.painel-num {
+  color: #1877CC;
+}
+
+.evento-texto,
+.pessoa-nome {
+  color: #0B1B2B;
+}
+
+.evento-detalhe,
+.painel-rotulo,
+.pessoa-id {
+  color: #33506B;
+}
+
+.grafico-caixa {
+  padding: 14px;
+  background: linear-gradient(180deg, #F4F8FB 0%, #DCE6EE 100%);
+  border: 2px solid #4FC3D1;
+  border-radius: 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.grafico-caixa .grupo-titulo {
+  color: #0B1B2B;
+}
+
+.grafico-legenda {
+  display: flex;
+  gap: 16px;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0B1B2B;
+}
+
+.legenda-cor {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+.legenda-cadastros {
+  background: #14B8C4;
+}
+
+.legenda-mensagens {
+  background: #1877CC;
+}
+
+.grafico {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 8px;
+}
+
+.grafico-grade {
+  stroke: #B8C9D8;
+  stroke-width: 1;
+}
+
+.grafico-cadastros {
+  fill: #14B8C4;
+}
+
+.grafico-mensagens {
+  fill: #1877CC;
+}
+
+.grafico-eixo {
+  font-size: 11px;
+  fill: #33506B;
+}
+
+.grafico-resumo {
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0B1B2B;
+}
+
+.painel-atualizado {
+  font-size: 13px;
+  color: #8AA4BC;
+  text-align: center;
+}
