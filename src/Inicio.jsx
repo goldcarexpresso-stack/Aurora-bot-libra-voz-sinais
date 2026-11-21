@@ -1,4 +1,43 @@
+import { useEffect, useState } from 'react'
 import Titulo from './Titulo.jsx'
+import { supabase } from './supabase.js'
+
+function FaixaParceiros() {
+  const [banners, setBanners] = useState([])
+  const [i, setI] = useState(0)
+
+  useEffect(() => {
+    let vivo = true
+    supabase
+      .from('parceiros')
+      .select('id, nome, descricao, link')
+      .eq('tipo', 'banner')
+      .order('ordem', { ascending: true })
+      .then(({ data }) => {
+        if (vivo) setBanners(data || [])
+      })
+    return () => {
+      vivo = false
+    }
+  }, [])
+
+  useEffect(() => {
+    if (banners.length < 2) return
+    const t = setInterval(() => setI((atual) => (atual + 1) % banners.length), 5000)
+    return () => clearInterval(t)
+  }, [banners.length])
+
+  if (banners.length === 0) return null
+  const b = banners[i % banners.length]
+
+  return (
+    <a className="faixa-parceiro" href={b.link || undefined} target="_blank" rel="noopener noreferrer">
+      <span className="faixa-parceiro-selo">Parceiro</span>
+      <strong>{b.nome}</strong>
+      {b.descricao && <span>{b.descricao}</span>}
+    </a>
+  )
+}
 
 const ITENS = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
@@ -14,6 +53,7 @@ const ALERTAS = { id: 'alertas', icone: '🔔', titulo: 'Alertas recebidos' }
 const LISTA = [
   { id: 'confianca', icone: '🔐', titulo: 'Contatos de confiança' },
   { id: 'alertas', icone: '🔔', titulo: 'Alertas recebidos' },
+  { id: 'parceiros', icone: '🤝', titulo: 'Parceiros e divulgação' },
   { id: 'config', icone: '⚙️', titulo: 'Configurações', fase: 'Fase 6' },
 ]
 
@@ -21,6 +61,8 @@ export default function Inicio({ sessao, dono, aoAbrir, aoPerfil, aoPainel }) {
   return (
     <div className="tela inicio">
       <Titulo sessao={sessao} />
+
+      <FaixaParceiros />
 
       <nav className="inicio-grade">
         {ITENS.map((item) => (

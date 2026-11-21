@@ -13,6 +13,7 @@ import Sos from './Sos.jsx'
 import Alertas from './Alertas.jsx'
 import Vigia from './Vigia.jsx'
 import Inicio from './Inicio.jsx'
+import Parceiros from './Parceiros.jsx'
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
@@ -144,6 +145,10 @@ export default function App() {
 
     if (aberto && aberto.id === 'confianca') {
       return <Confianca sessao={sessao} aoVoltar={() => setAberto(null)} />
+    }
+
+    if (aberto && aberto.id === 'parceiros') {
+      return <Parceiros sessao={sessao} aoVoltar={() => setAberto(null)} />
     }
 
     if (aberto && aberto.id === 'alertas') {

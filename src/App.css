@@ -1180,3 +1180,38 @@ body:has(.vigia) .tela {
   color: #8AA4BC;
   text-align: center;
 }
+
+/* ----- Faixa de parceiros ----- */
+
+.faixa-parceiro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 12px 14px;
+  background: linear-gradient(180deg, #F4F8FB 0%, #DCE6EE 100%);
+  color: #0B1B2B;
+  border: 2px solid #4FC3D1;
+  border-radius: 16px;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.faixa-parceiro strong {
+  font-size: 16px;
+}
+
+.faixa-parceiro span {
+  font-size: 13px;
+  color: #33506B;
+}
+
+.faixa-parceiro-selo {
+  align-self: flex-start;
+  padding: 2px 8px;
+  font-size: 11px !important;
+  font-weight: 800;
+  color: #FFFFFF !important;
+  background: #1877CC;
+  border-radius: 8px;
+}
