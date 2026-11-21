@@ -12,7 +12,7 @@ import Confianca from './Confianca.jsx'
 import Sos from './Sos.jsx'
 import Alertas from './Alertas.jsx'
 import Vigia from './Vigia.jsx'
-import Titulo from './Titulo.jsx'
+import Inicio from './Inicio.jsx'
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
@@ -167,39 +167,13 @@ export default function App() {
     }
 
     return (
-      <div className="tela">
-        <Titulo sessao={sessao} />
-
-        <nav className="menu">
-          {MENU.map((item) => (
-            <button
-              key={item.id}
-              className={item.id === 'sos' ? 'card card-sos' : 'card'}
-              onClick={() => setAberto(item)}
-            >
-              <span className="card-icone">{item.icone}</span>
-              <span className="card-titulo">{item.titulo}</span>
-            </button>
-          ))}
-
-          <button className="card" onClick={() => setNoPerfil(true)}>
-            <span className="card-icone">👤</span>
-            <span className="card-titulo">Meu perfil</span>
-          </button>
-
-          {dono && (
-            <button className="card card-dono" onClick={() => setNoPainel(true)}>
-              <span className="card-icone">📊</span>
-              <span className="card-titulo">Painel do dono</span>
-            </button>
-          )}
-        </nav>
-
-        <footer className="rodape">
-          O SOS avisa seus contatos de confiança dentro da Aurora,
-          com o app aberto.
-        </footer>
-      </div>
+      <Inicio
+        sessao={sessao}
+        dono={dono}
+        aoAbrir={setAberto}
+        aoPerfil={() => setNoPerfil(true)}
+        aoPainel={() => setNoPainel(true)}
+      />
     )
   }
 
