@@ -14,6 +14,8 @@ import Alertas from './Alertas.jsx'
 import Vigia from './Vigia.jsx'
 import Inicio from './Inicio.jsx'
 import Parceiros from './Parceiros.jsx'
+import Dica from './Dica.jsx'
+import Ajuda from './Ajuda.jsx'
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
@@ -102,7 +104,14 @@ export default function App() {
     )
   }
 
-  if (!sessao) return <Login />
+  if (!sessao) {
+    return (
+      <>
+        <Login />
+        <Ajuda telaAtual="login" />
+      </>
+    )
+  }
 
   function abrirAlertas() {
     setNoPainel(false)
@@ -182,10 +191,15 @@ export default function App() {
     )
   }
 
+  const telaAtual =
+    noPainel && dono ? 'painel' : noPerfil ? 'perfil' : aberto ? aberto.id : 'inicio'
+
   return (
     <>
       <Vigia sessao={sessao} aoAbrir={abrirAlertas} />
+      <Dica telaAtual={telaAtual} />
       {conteudo()}
+      <Ajuda telaAtual={telaAtual} />
     </>
   )
 }

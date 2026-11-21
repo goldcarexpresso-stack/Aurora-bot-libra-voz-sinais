@@ -1,0 +1,270 @@
+export const TOPICOS = [
+  {
+    id: 'inicio',
+    titulo: 'Tela inicial',
+    icone: '🏠',
+    dica: 'Aqui estão todas as funções do Aurora. Toque em um cartão para abrir.',
+    botoes: [
+      { nome: 'Cartões de cima', faz: 'Abrem Falar em Libras, Falar, Minhas conversas, Contatos e Sentir o ambiente.' },
+      { nome: 'SOS · pedir ajuda', faz: 'Avisa seus contatos de confiança, dentro do app, com horário e localização.' },
+      { nome: 'Lista de baixo', faz: 'Abre Contatos de confiança, Alertas recebidos, Parceiros, Configurações e Meu perfil.' },
+      { nome: 'Barra de baixo', faz: 'Atalhos rápidos: Início, Tradutor, SOS, Alertas e Perfil.' },
+      { nome: 'Ícone da mão', faz: 'Abre o tradutor de Libras externo (VLibras). Se não carregar, o serviço pode estar fora do ar.' },
+    ],
+    passos: [
+      'Toque no cartão da função que você quer.',
+      'Para voltar, toque em ← Voltar, no topo da tela.',
+      'Para pedir ajuda com urgência, toque no SOS vermelho.',
+    ],
+    duvidas: [
+      { p: 'Por que não vejo o Painel do dono?', r: 'Ele só aparece para a conta dona do aplicativo.' },
+      { p: 'O que é o faixa de parceiros em cima?', r: 'São apoiadores que ajudam a manter o Aurora gratuito. Eles não recebem dados de usuários.' },
+    ],
+    palavras: ['inicio', 'início', 'home', 'menu', 'tela inicial', 'principal', 'cartoes', 'cartões'],
+  },
+  {
+    id: 'falar',
+    titulo: 'Falar',
+    icone: '🎤',
+    dica: 'Use Falar para transformar a fala de outra pessoa em texto na tela.',
+    botoes: [
+      { nome: 'Começar a ouvir', faz: 'Liga o microfone. A fala aparece em texto.' },
+      { nome: 'Parar de ouvir', faz: 'Desliga o microfone.' },
+      { nome: 'Limpar', faz: 'Apaga o texto da tela.' },
+    ],
+    passos: [
+      'Toque em Começar a ouvir.',
+      'Peça para a pessoa falar perto do celular.',
+      'Leia o texto que aparece.',
+      'Toque em Parar de ouvir quando terminar.',
+    ],
+    duvidas: [
+      { p: 'Apareceu "este navegador não reconhece voz".', r: 'Abra o Aurora no Chrome. Outros navegadores podem não ter essa função.' },
+      { p: 'O texto não aparece.', r: 'Confira se o microfone foi liberado para o site nas permissões do navegador.' },
+    ],
+    palavras: ['falar', 'voz', 'ouvir', 'microfone', 'texto', 'transcrever', 'fala'],
+  },
+  {
+    id: 'libras',
+    titulo: 'Falar em Libras',
+    icone: '🤟',
+    dica: 'Aqui a conversa vira texto para quem usa Libras. Toque em A pessoa vai falar quando for a sua vez.',
+    botoes: [
+      { nome: 'A pessoa vai falar', faz: 'Liga o microfone para a outra pessoa falar.' },
+      { nome: 'Parar de ouvir', faz: 'Desliga o microfone.' },
+      { nome: 'Limpar', faz: 'Apaga o que está escrito na tela.' },
+    ],
+    passos: [
+      'Toque em A pessoa vai falar.',
+      'A pessoa fala, e o texto aparece na tela.',
+      'Toque em Parar de ouvir quando ela terminar.',
+    ],
+    duvidas: [
+      { p: 'O texto demora ou não aparece.', r: 'Fale devagar e de frente para o celular. Se nada aparecer, veja se o microfone foi liberado.' },
+    ],
+    palavras: ['libras', 'sinais', 'traduzir', 'traducao', 'tradução', 'tradutor'],
+  },
+  {
+    id: 'conversas',
+    titulo: 'Minhas conversas',
+    icone: '💬',
+    dica: 'Aqui ficam suas conversas com as pessoas que você adicionou.',
+    botoes: [
+      { nome: 'Nome da pessoa', faz: 'Toque para abrir a conversa.' },
+      { nome: 'Campo de escrever', faz: 'Digite a mensagem na parte de baixo da conversa.' },
+      { nome: 'Enviar', faz: 'Manda a mensagem para a pessoa.' },
+    ],
+    passos: [
+      'Toque na conversa que quer abrir.',
+      'Escreva no campo de baixo.',
+      'Toque em Enviar.',
+    ],
+    duvidas: [
+      { p: 'Não vejo nenhuma conversa.', r: 'Você precisa primeiro adicionar alguém em Contatos.' },
+    ],
+    palavras: ['conversa', 'conversas', 'mensagem', 'chat', 'escrever', 'enviar'],
+  },
+  {
+    id: 'chat',
+    titulo: 'Conversa',
+    icone: '💬',
+    dica: 'Dentro da conversa, escreva na barra de baixo e toque em Enviar.',
+    botoes: [
+      { nome: 'Enviar', faz: 'Manda a mensagem escrita.' },
+      { nome: '← Voltar', faz: 'Volta para a lista de conversas.' },
+    ],
+    passos: ['Escreva a mensagem no campo de baixo.', 'Toque em Enviar.'],
+    duvidas: [],
+    palavras: ['chat', 'conversa', 'enviar', 'balao', 'balão'],
+  },
+  {
+    id: 'contatos',
+    titulo: 'Contatos',
+    icone: '👥',
+    dica: 'Para conversar com alguém, primeiro envie um pedido de contato pelo ID AURORA dela.',
+    botoes: [
+      { nome: 'Enviar solicitação', faz: 'Pede para a pessoa virar seu contato, usando o ID dela.' },
+      { nome: 'Aceitar / Recusar', faz: 'Responde a um pedido que chegou para você.' },
+      { nome: 'Remover', faz: 'Tira a pessoa da sua lista de contatos.' },
+    ],
+    passos: [
+      'Peça o ID AURORA da pessoa (ele fica em Meu perfil).',
+      'Digite o ID e toque em Enviar solicitação.',
+      'Quando ela aceitar, a conversa aparece em Minhas conversas.',
+    ],
+    duvidas: [
+      { p: 'Onde acho meu ID AURORA?', r: 'Em Meu perfil, na lista de baixo da tela inicial.' },
+      { p: 'Posso desfazer um contato?', r: 'Sim, toque em Remover ao lado do nome.' },
+    ],
+    palavras: ['contato', 'contatos', 'adicionar', 'amigo', 'solicitacao', 'solicitação', 'id'],
+  },
+  {
+    id: 'confianca',
+    titulo: 'Contatos de confiança',
+    icone: '🔐',
+    dica: 'Estas são as pessoas que recebem seus alertas de SOS. Você pode ter até 5.',
+    botoes: [
+      { nome: 'Adicionar', faz: 'Escolhe alguém da sua lista de contatos como contato de confiança.' },
+      { nome: 'Remover', faz: 'Tira essa pessoa dos avisos de SOS.' },
+    ],
+    passos: [
+      'Toque em Adicionar e escolha a pessoa.',
+      'Ela passa a receber seus alertas de SOS.',
+    ],
+    duvidas: [
+      { p: 'Quantos contatos posso ter?', r: 'Até 5 contatos de confiança.' },
+      { p: 'A pessoa recebe minha localização?', r: 'Só se você tiver permitido a localização para ela.' },
+    ],
+    palavras: ['confianca', 'confiança', 'sos', 'alerta', 'avisar', 'proteger'],
+  },
+  {
+    id: 'ambiente',
+    titulo: 'Sentir o ambiente',
+    icone: '👁️',
+    dica: 'Aqui o celular avisa sons importantes, como campainha e alarme, com alerta na tela e vibração.',
+    botoes: [
+      { nome: 'Detectar sons do ambiente', faz: 'Liga a escuta de sons como campainha, alarme e sirene.' },
+      { nome: 'Escutar as pessoas falando', faz: 'Mostra na tela o que as pessoas perto de você falam.' },
+      { nome: 'Parar', faz: 'Desliga a escuta.' },
+      { nome: 'Apagar tudo o que foi escrito', faz: 'Limpa o texto da tela.' },
+    ],
+    passos: [
+      'Toque em Detectar sons do ambiente.',
+      'Quando um som for reconhecido, a tela e o celular avisam.',
+      'Toque em Parar quando não precisar mais.',
+    ],
+    duvidas: [
+      { p: 'O app grava o que eu escuto?', r: 'Não. A escuta acontece no celular para reconhecer sons, sem gravar conversas.' },
+      { p: 'Ele substitui um alarme de verdade?', r: 'Não. É um apoio. Em emergência, use o SOS ou ligue para 190 ou 192.' },
+    ],
+    palavras: ['ambiente', 'sons', 'som', 'campainha', 'alarme', 'sirene', 'escutar', 'vibracao', 'vibração'],
+  },
+  {
+    id: 'sos',
+    titulo: 'SOS · pedir ajuda',
+    icone: '🚨',
+    dica: 'O SOS avisa seus contatos de confiança. Em emergência real, ligue também para 190 ou 192.',
+    botoes: [
+      { nome: 'Ver minha localização no mapa', faz: 'Abre o mapa com o ponto onde você está.' },
+      { nome: 'Ligar para 190', faz: 'Liga para a polícia.' },
+      { nome: 'Foi engano', faz: 'Cancela o pedido que você enviou sem querer.' },
+      { nome: 'Encerrar pedido', faz: 'Encerra o pedido quando a situação passou.' },
+    ],
+    passos: [
+      'Toque no SOS vermelho e confirme o pedido.',
+      'Seus contatos de confiança recebem o aviso.',
+      'Se foi sem querer, toque em Foi engano.',
+      'Quando a situação passar, toque em Encerrar pedido.',
+    ],
+    duvidas: [
+      { p: 'O SOS manda a mensagem para a polícia?', r: 'Não. Ele avisa seus contatos de confiança dentro do app, com o app aberto. Para a polícia, ligue para 190.' },
+      { p: 'Posso cancelar?', r: 'Sim, use Foi engano logo depois de enviar.' },
+    ],
+    palavras: ['sos', 'socorro', 'ajuda', 'emergencia', 'emergência', 'engano', 'encerrar', 'localizacao', 'localização'],
+  },
+  {
+    id: 'alertas',
+    titulo: 'Alertas recebidos',
+    icone: '🔔',
+    dica: 'Aqui aparecem os pedidos de ajuda de quem te colocou como contato de confiança.',
+    botoes: [
+      { nome: 'Ver onde a pessoa estava', faz: 'Abre o mapa com a localização enviada no alerta.' },
+      { nome: 'Limpar todos os alertas', faz: 'Tira os alertas da sua lista. A pessoa não é avisada.' },
+    ],
+    passos: [
+      'Quando chegar um alerta, toque nele para ver os detalhes.',
+      'Toque em Ver onde a pessoa estava para ver o mapa.',
+      'Depois de cuidar da situação, toque em Limpar todos os alertas.',
+    ],
+    duvidas: [
+      { p: 'Não estou recebendo alertas.', r: 'Toque em Ligar o aviso neste aparelho e permita as notificações.' },
+    ],
+    palavras: ['alertas', 'alerta', 'aviso', 'notificacao', 'notificação', 'notificar', 'limpar'],
+  },
+  {
+    id: 'parceiros',
+    titulo: 'Parceiros e divulgação',
+    icone: '🤝',
+    dica: 'Aqui estão as empresas que apoiam o Aurora. Toque em um parceiro para visitar.',
+    botoes: [
+      { nome: 'Quer fazer parceria? / Anuncie aqui', faz: 'Abre o formulário para enviar um pedido de parceria.' },
+      { nome: 'Visitar / Ver vídeo', faz: 'Abre o site ou o vídeo do parceiro.' },
+      { nome: 'Enviar pedido', faz: 'Manda seu nome e contato para a equipe do Aurora.' },
+    ],
+    passos: [
+      'Escolha um parceiro e toque no botão colorido para visitar.',
+      'Para anunciar, toque em Quer fazer parceria?, preencha e envie.',
+    ],
+    duvidas: [
+      { p: 'Os parceiros veem meus dados?', r: 'Não. Eles não recebem dados de usuários nem influenciam alertas, SOS ou conversas.' },
+    ],
+    palavras: ['parceiro', 'parceria', 'anuncio', 'anúncio', 'anunciar', 'divulgacao', 'divulgação', 'patrocinio', 'patrocínio'],
+  },
+  {
+    id: 'perfil',
+    titulo: 'Meu perfil',
+    icone: '👤',
+    dica: 'Aqui você vê seu nome e o seu ID AURORA. É por esse ID que as pessoas te adicionam.',
+    botoes: [
+      { nome: 'ID AURORA', faz: 'Seu código. Passe para quem quiser te adicionar.' },
+      { nome: 'Sair da conta', faz: 'Desconecta você deste aparelho.' },
+    ],
+    passos: ['Para ver seu ID, abra Meu perfil.', 'Para sair, toque em Sair da conta.'],
+    duvidas: [
+      { p: 'Esqueci minha senha.', r: 'Na tela de entrada, use a opção de recuperar senha, ou fale com quem administra o app.' },
+    ],
+    palavras: ['perfil', 'id', 'conta', 'sair', 'meu nome', 'senha'],
+  },
+  {
+    id: 'painel',
+    titulo: 'Painel do dono',
+    icone: '📊',
+    dica: 'Este painel mostra números do Aurora e permite gerenciar parceiros e pedidos.',
+    botoes: [
+      { nome: 'Atualizar agora', faz: 'Busca os números mais recentes. Ele também atualiza sozinho.' },
+      { nome: 'Cadastrar parceiro / Editar / Pausar / Apagar', faz: 'Gerencia a faixa de parceiros.' },
+      { nome: 'Marcar como lido', faz: 'Marca um pedido de parceria como visto.' },
+    ],
+    passos: ['Confira os números no topo.', 'Para mudar um parceiro, toque em Editar.'],
+    duvidas: [],
+    palavras: ['painel', 'dono', 'numeros', 'números', 'grafico', 'gráfico', 'estatistica'],
+  },
+  {
+    id: 'login',
+    titulo: 'Entrar e criar conta',
+    icone: '🔑',
+    dica: 'Para entrar, use o e-mail e a senha que você criou.',
+    botoes: [
+      { nome: 'Entrar', faz: 'Entra com o e-mail e a senha.' },
+      { nome: 'Criar conta', faz: 'Cria um cadastro novo, com nome, e-mail e senha.' },
+    ],
+    passos: [
+      'Digite seu e-mail e sua senha, e toque em Entrar.',
+      'Se ainda não tem conta, toque em Criar conta.',
+    ],
+    duvidas: [
+      { p: 'Disse que o e-mail já tem cadastro.', r: 'Use Entrar com esse e-mail.' },
+    ],
+    palavras: ['entrar', 'login', 'senha', 'cadastro', 'criar conta', 'email', 'e-mail'],
+  },
+]
