@@ -10,7 +10,7 @@ function FaixaParceiros() {
     let vivo = true
     supabase
       .from('parceiros')
-      .select('id, nome, descricao, link')
+      .select('id, nome, descricao, link, imagem')
       .eq('tipo', 'banner')
       .order('ordem', { ascending: true })
       .then(({ data }) => {
@@ -32,6 +32,7 @@ function FaixaParceiros() {
 
   return (
     <a className="faixa-parceiro" href={b.link || undefined} target="_blank" rel="noopener noreferrer">
+      {b.imagem && <img src={b.imagem} alt={b.nome} className="faixa-parceiro-imagem" />}
       <span className="faixa-parceiro-selo">Parceiro</span>
       <strong>{b.nome}</strong>
       {b.descricao && <span>{b.descricao}</span>}

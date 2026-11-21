@@ -1,7 +1,29 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 
-const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', tipo: 'banner', ate: '' }
+const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', tipo: 'banner', ate: '', imagem: '' }
+
+function reduzirImagem(arquivo) {
+  return new Promise((resolve, reject) => {
+    const leitor = new FileReader()
+    leitor.onerror = reject
+    leitor.onload = () => {
+      const img = new Image()
+      img.onerror = reject
+      img.onload = () => {
+        const max = 900
+        const escala = Math.min(1, max / Math.max(img.width, img.height))
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * escala)
+        canvas.height = Math.round(img.height * escala)
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+        canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('sem imagem'))), 'image/jpeg', 0.8)
+      }
+      img.src = leitor.result
+    }
+    leitor.readAsDataURL(arquivo)
+  })
+}
 
 export default function ParceriasDono() {
   const [parceiros, setParceiros] = useState([])
@@ -9,12 +31,13 @@ export default function ParceriasDono() {
   const [form, setForm] = useState(VAZIO)
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [enviandoImagem, setEnviandoImagem] = useState(false)
 
   async function carregar() {
     const [{ data: p }, { data: d }] = await Promise.all([
       supabase
         .from('parceiros')
-        .select('id, nome, categoria, descricao, link, tipo, ativo, ate, criado_em')
+        .select('id, nome, categoria, descricao, link, imagem, tipo, ativo, ate, criado_em')
         .order('criado_em', { ascending: false }),
       supabase
         .from('parceria_pedidos')
@@ -34,6 +57,29 @@ export default function ParceriasDono() {
     setForm((atual) => ({ ...atual, [campo]: valor }))
   }
 
+  async function escolherImagem(e) {
+    const arquivo = e.target.files && e.target.files[0]
+    if (!arquivo) return
+    setErro('')
+    setEnviandoImagem(true)
+
+    try {
+      const blob = await reduzirImagem(arquivo)
+      const caminho = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+      const { error } = await supabase.storage
+        .from('parceiros')
+        .upload(caminho, blob, { contentType: 'image/jpeg', upsert: false })
+      if (error) throw error
+      const { data } = supabase.storage.from('parceiros').getPublicUrl(caminho)
+      mudar('imagem', data.publicUrl)
+    } catch {
+      setErro('Não foi possível enviar a imagem. Tente outra foto.')
+    } finally {
+      setEnviandoImagem(false)
+      e.target.value = ''
+    }
+  }
+
   async function cadastrar(e) {
     e.preventDefault()
     setErro('')
@@ -51,6 +97,7 @@ export default function ParceriasDono() {
       link: form.link.trim() || null,
       tipo: form.tipo,
       ate: form.ate || null,
+      imagem: form.imagem || null,
     })
     setSalvando(false)
 
@@ -93,6 +140,13 @@ export default function ParceriasDono() {
         <label className="campo">
           <span className="campo-nome">Categoria (ex.: Escola de Libras)</span>
           <input className="campo-input" value={form.categoria} onChange={(e) => mudar('categoria', e.target.value)} />
+        </label>
+
+        <label className="campo">
+          <span className="campo-nome">Imagem do banner (opcional)</span>
+          <input type="file" accept="image/*" onChange={escolherImagem} disabled={enviandoImagem} />
+          {enviandoImagem && <span className="aviso-linha">Enviando imagem...</span>}
+          {form.imagem && <img src={form.imagem} alt="" className="parceiro-previa" />}
         </label>
 
         <label className="campo">

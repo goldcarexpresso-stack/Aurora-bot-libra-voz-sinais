@@ -1215,3 +1215,23 @@ body:has(.vigia) .tela {
   background: #1877CC;
   border-radius: 8px;
 }
+
+/* ----- Imagens dos parceiros ----- */
+
+.parceiro-previa {
+  display: block;
+  width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  margin-top: 6px;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+.faixa-parceiro-imagem {
+  width: 100%;
+  max-height: 120px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #FFFFFF;
+}

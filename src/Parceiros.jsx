@@ -15,7 +15,7 @@ export default function Parceiros({ sessao, aoVoltar }) {
     let vivo = true
     supabase
       .from('parceiros')
-      .select('id, nome, categoria, descricao, link, tipo, ate, ordem')
+      .select('id, nome, categoria, descricao, link, imagem, tipo, ate, ordem')
       .order('ordem', { ascending: true })
       .order('criado_em', { ascending: false })
       .then(({ data }) => {
@@ -79,6 +79,7 @@ export default function Parceiros({ sessao, aoVoltar }) {
 
         {lista.map((p) => (
           <div key={p.id} className="evento">
+            {p.imagem && <img src={p.imagem} alt={p.nome} className="parceiro-previa" />}
             <span className="evento-hora">Parceiro · {p.categoria}</span>
             <strong className="evento-texto">{p.nome}</strong>
             {p.descricao && <span className="evento-detalhe">{p.descricao}</span>}
