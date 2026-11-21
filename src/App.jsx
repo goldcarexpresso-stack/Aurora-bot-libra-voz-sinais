@@ -79,6 +79,29 @@ export default function App() {
     }
   }, [sessao])
 
+  useEffect(() => {
+    function irPara(e) {
+      const id = e.detail
+      setNoPerfil(false)
+      setNoPainel(false)
+      if (id === 'inicio') {
+        setAberto(null)
+        return
+      }
+      if (id === 'perfil') {
+        setNoPerfil(true)
+        return
+      }
+      if (id === 'painel') {
+        if (dono) setNoPainel(true)
+        return
+      }
+      setAberto(MENU.find((m) => m.id === id) || { id, titulo: '', icone: '' })
+    }
+    window.addEventListener('aurora-ir', irPara)
+    return () => window.removeEventListener('aurora-ir', irPara)
+  }, [dono])
+
   if (!conectado) {
     return (
       <div className="tela">
