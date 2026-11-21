@@ -18,6 +18,7 @@ export default function Login() {
   const [senha, setSenha] = useState('')
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState('')
+  const [aviso, setAviso] = useState('')
 
   const criando = modo === 'criar'
 
@@ -55,6 +56,26 @@ export default function Login() {
     setCarregando(false)
 
     if (resposta.error) setErro(traduzirErro(resposta.error.message))
+  }
+
+  async function esqueciSenha() {
+    setErro('')
+    setAviso('')
+    if (!conectado) {
+      setErro('O aplicativo não está conectado ao banco de dados.')
+      return
+    }
+    if (!email.trim()) {
+      setErro('Digite seu e-mail acima e toque de novo.')
+      return
+    }
+    setCarregando(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: window.location.origin,
+    })
+    setCarregando(false)
+    if (error) setErro(traduzirErro(error.message))
+    else setAviso('Enviamos um link para o seu e-mail. Abra o link neste celular para criar uma nova senha.')
   }
 
   function trocarModo() {
@@ -109,10 +130,17 @@ export default function Login() {
         </label>
 
         {erro && <p className="erro">{erro}</p>}
+        {aviso && <p className="aviso-linha">{aviso}</p>}
 
         <button className="principal" onClick={enviar} disabled={carregando}>
           {carregando ? 'Aguarde...' : criando ? 'Criar conta' : 'Entrar'}
         </button>
+
+        {!criando && (
+          <button className="link-botao" onClick={esqueciSenha} disabled={carregando}>
+            Esqueci minha senha
+          </button>
+        )}
 
         <button className="secundario" onClick={trocarModo} disabled={carregando}>
           {criando ? 'Já tenho conta' : 'Criar uma conta'}
