@@ -1438,3 +1438,125 @@ body:has(.vigia) .tela {
     animation: none;
   }
 }
+
+/* ===== Acabamento premium (2026): cartões em vidro, títulos em degradê, campos com brilho ===== */
+
+.inicio-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ficha {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 112px;
+  padding: 16px 14px;
+  color: #FFFFFF;
+  text-align: left;
+  background: linear-gradient(160deg, rgba(20, 48, 74, 0.95), rgba(11, 27, 43, 0.95));
+  border: 1px solid rgba(79, 195, 209, 0.45);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ficha:active {
+  transform: scale(0.97);
+}
+
+.ficha-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  font-size: 22px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.25), rgba(176, 38, 255, 0.35));
+  border: 1px solid rgba(79, 195, 209, 0.7);
+}
+
+.ficha-titulo {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.ficha-selo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #E9D8FF;
+  background: rgba(176, 38, 255, 0.35);
+  border-radius: 10px;
+}
+
+.topo h1,
+.form-titulo {
+  background: linear-gradient(90deg, #7FD1CC, #00e5ff, #b026ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grupo-titulo {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #7FD1CC;
+}
+
+.campo-input,
+.area {
+  background: rgba(20, 48, 74, 0.6);
+  border: 1px solid #2A5170;
+  border-radius: 14px;
+  color: #FFFFFF;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campo-input:focus,
+.area:focus {
+  outline: none;
+  border-color: #00e5ff;
+  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.25), 0 0 18px rgba(0, 229, 255, 0.35);
+}
+
+.campo-nome {
+  color: #A9D9E6;
+  font-weight: 700;
+}
+
+.principal {
+  background: linear-gradient(110deg, #00e5ff 0%, #1877CC 50%, #b026ff 100%);
+  color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(0, 229, 255, 0.3);
+  border-radius: 16px;
+}
+
+.secundario {
+  border-radius: 16px;
+}
+
+.aviso,
+.instrucao {
+  background: rgba(20, 48, 74, 0.55);
+  border: 1px solid rgba(79, 195, 209, 0.35);
+  border-radius: 20px;
+  backdrop-filter: blur(6px);
+}
+
+.rodape {
+  color: #8AA4BC;
+  opacity: 0.85;
+}

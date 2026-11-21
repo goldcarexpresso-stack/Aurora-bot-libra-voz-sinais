@@ -94,19 +94,18 @@ export default function Inicio({ sessao, dono, aoAbrir, aoPerfil, aoPainel }) {
         🚨 SOS · pedir ajuda
       </button>
 
-      <section className="inicio-lista">
+      <section className="inicio-cards">
         {LISTA.map((item) => (
-          <button key={item.id} className="linha-lista" onClick={() => aoAbrir(item)}>
-            <span>
-              {item.icone} {item.titulo}
-            </span>
-            <span>›</span>
+          <button key={item.id} className="ficha" onClick={() => aoAbrir(item)}>
+            <span className="ficha-icone">{item.icone}</span>
+            <span className="ficha-titulo">{item.titulo}</span>
+            {item.fase && <span className="ficha-selo">{item.fase}</span>}
           </button>
         ))}
 
-        <button className="linha-lista" onClick={aoPerfil}>
-          <span>👤 Meu perfil</span>
-          <span>›</span>
+        <button className="ficha" onClick={aoPerfil}>
+          <span className="ficha-icone">👤</span>
+          <span className="ficha-titulo">Meu perfil</span>
         </button>
       </section>
 
