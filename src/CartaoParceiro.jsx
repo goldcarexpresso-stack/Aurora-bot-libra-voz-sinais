@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 function idYoutube(url) {
   if (!url) return null
@@ -10,11 +10,38 @@ function ehWhatsApp(url) {
   return !!url && /wa\.me|whatsapp/i.test(url)
 }
 
-export default function CartaoParceiro({ p, compacto = false }) {
+export default function CartaoParceiro({ p, compacto = false, aoTerminar }) {
   const idVideo = idYoutube(p.video)
   const wa = ehWhatsApp(p.link)
   const rotulo = p.botao || (wa ? 'Chamar no WhatsApp' : 'Visitar o site')
   const [som, setSom] = useState(false)
+  const frame = useRef(null)
+
+  // Ouve o YouTube: quando o vídeo termina, avisa para passar para o próximo
+  useEffect(() => {
+    if (!idVideo || !aoTerminar) return
+    function ouvir(e) {
+      if (!frame.current || e.source !== frame.current.contentWindow) return
+      let d = e.data
+      try {
+        if (typeof d === 'string') d = JSON.parse(d)
+      } catch {
+        return
+      }
+      const terminou =
+        (d && d.event === 'onStateChange' && d.info === 0) ||
+        (d && d.event === 'infoDelivery' && d.info && d.info.playerState === 0)
+      if (terminou) aoTerminar()
+    }
+    window.addEventListener('message', ouvir)
+    return () => window.removeEventListener('message', ouvir)
+  }, [idVideo, aoTerminar])
+
+  function aoCarregarVideo() {
+    if (frame.current && frame.current.contentWindow) {
+      frame.current.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), '*')
+    }
+  }
 
   return (
     <div className={compacto ? 'cartao-parceiro compacto' : 'cartao-parceiro'}>
@@ -23,8 +50,10 @@ export default function CartaoParceiro({ p, compacto = false }) {
       {idVideo ? (
         <div className="cartao-parceiro-videowrap">
           <iframe
+            ref={frame}
+            onLoad={aoCarregarVideo}
             className="cartao-parceiro-midia"
-            src={`https://www.youtube-nocookie.com/embed/${idVideo}?autoplay=1&mute=${som ? 0 : 1}&loop=1&playlist=${idVideo}&controls=0&playsinline=1&modestbranding=1`}
+            src={`https://www.youtube-nocookie.com/embed/${idVideo}?autoplay=1&mute=${som ? 0 : 1}&enablejsapi=1&controls=0&playsinline=1&modestbranding=1`}
             title={p.nome}
             allow="autoplay; encrypted-media"
           />

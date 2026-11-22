@@ -6,6 +6,7 @@ import CartaoParceiro from './CartaoParceiro.jsx'
 function FaixaParceiros() {
   const [banners, setBanners] = useState([])
   const [i, setI] = useState(0)
+  const [ciclo, setCiclo] = useState(0)
 
   useEffect(() => {
     let vivo = true
@@ -22,21 +23,28 @@ function FaixaParceiros() {
     }
   }, [])
 
+  function proximo() {
+    setI((x) => (x + 1) % banners.length)
+    setCiclo((c) => c + 1)
+  }
+
   useEffect(() => {
-    if (banners.length < 2) return
     const atual = banners[i % banners.length]
-    // Tempo definido pelo dono em cada banner (padrão 5 segundos)
-    const espera = ((atual && atual.rotacao) || 5) * 1000
-    const t = setTimeout(() => setI((x) => (x + 1) % banners.length), espera)
+    if (!atual) return
+    if (banners.length < 2 && !atual.video) return
+    // Vídeo: passa quando terminar (o aviso vem do próprio vídeo); 3 minutos é só uma segurança
+    // Imagem: tempo definido pelo dono em cada banner (padrão 5 segundos)
+    const espera = atual.video ? 180000 : ((atual.rotacao || 5) * 1000)
+    const t = setTimeout(proximo, espera)
     return () => clearTimeout(t)
-  }, [banners, i])
+  }, [banners, i, ciclo])
 
   if (banners.length === 0) return null
   const b = banners[i % banners.length]
 
   return (
     <div className="faixa-wrap">
-      <CartaoParceiro p={b} compacto />
+      <CartaoParceiro key={`${b.id}-${ciclo}`} p={b} compacto aoTerminar={proximo} />
       {banners.length > 1 && (
         <div className="bdots-aurora">
           {banners.map((_, k) => (
