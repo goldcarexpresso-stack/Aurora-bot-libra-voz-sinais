@@ -2501,3 +2501,19 @@ body:has(.vigia) .tela {
   padding: 12px 14px; border-radius: 12px;
   background: #1877CC; color: #fff; font-weight: 700;
 }
+
+/* Texto escuro dentro dos cartões claros (legível em todas as telas) */
+.evento .campo-nome,
+.pessoa .campo-nome,
+.painel-caixa .campo-nome,
+.grafico-caixa .campo-nome,
+.cartao-claro .campo-nome,
+.evento .aviso-linha,
+.pessoa .aviso-linha,
+.painel-caixa .aviso-linha,
+.grafico-caixa .aviso-linha,
+.pessoa-botoes,
+.evento .evento-detalhe,
+.pessoa .evento-detalhe {
+  color: #1E3A52;
+}
