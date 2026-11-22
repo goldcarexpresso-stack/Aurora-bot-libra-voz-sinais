@@ -1,6 +1,22 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 
+// Transforma o contato digitado pelo anunciante num link (WhatsApp, e-mail, site ou Instagram)
+function linkDoContato(texto) {
+  const t = (texto || '').trim()
+  if (!t) return null
+  if (/^https?:\/\//i.test(t)) return { url: t, rotulo: 'Abrir site' }
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t)) return { url: `mailto:${t}`, rotulo: 'Enviar e-mail' }
+  const digitos = t.replace(/\D/g, '')
+  if (digitos.length >= 10) {
+    const numero = digitos.length <= 11 ? `55${digitos}` : digitos
+    return { url: `https://wa.me/${numero}`, rotulo: 'Chamar no WhatsApp' }
+  }
+  const usuario = t.replace(/^@/, '')
+  if (/^[\w.]{3,}$/.test(usuario)) return { url: `https://www.instagram.com/${usuario}`, rotulo: 'Abrir no Instagram' }
+  return null
+}
+
 const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', video: '', botao: '', tipo: 'banner', ate: '', imagem: '', rotacao: 5 }
 
 function reduzirImagem(arquivo) {
@@ -276,6 +292,16 @@ export default function ParceriasDono() {
           <strong className="evento-texto">{d.nome}</strong>
           <span className="evento-detalhe">Contato: {d.contato}</span>
           {d.mensagem && <span className="evento-detalhe">{d.mensagem}</span>}
+          {linkDoContato(d.contato) && (
+            <a
+              className="cartao-botao cartao-botao-wa"
+              href={linkDoContato(d.contato).url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {linkDoContato(d.contato).rotulo}
+            </a>
+          )}
           {!d.lido && (
             <button className="secundario" onClick={() => marcarLido(d)}>
               Marcar como lido
