@@ -165,6 +165,20 @@ export const TOPICOS = [
     palavras: ['perfil', 'id', 'conta', 'sair', 'meu nome'],
   },
   {
+    id: 'config',
+    titulo: 'Configurações',
+    icone: '⚙️',
+    dica: 'Contraste, animações e dicas.',
+    acoes: [
+      { nome: 'Contraste', icone: '🌓', faz: 'Deixa a tela mais forte' },
+      { nome: 'Animações', icone: '✨', faz: 'Liga ou desliga os brilhos' },
+      { nome: 'Dicas', icone: '💬', faz: 'Mostra ou esconde as dicas' },
+    ],
+    passos: ['Toque na chave para ligar ou desligar.', 'Veja a mudança na hora.', 'Sair da conta fica no fim.'],
+    duvida: null,
+    palavras: ['configuracoes', 'config', 'contraste', 'animacao', 'dicas', 'ajustes'],
+  },
+  {
     id: 'painel',
     titulo: 'Painel do dono',
     icone: '📊',
