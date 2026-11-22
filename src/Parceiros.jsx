@@ -135,6 +135,17 @@ export default function Parceiros({ sessao, aoVoltar }) {
           <CartaoParceiro key={p.id} p={p} />
         ))}
 
+        <section className="grupo">
+          <h3 className="grupo-titulo">📩 Fale com a Aurora</h3>
+          <p className="aviso-linha">
+            Para anunciar, tirar dúvidas ou fazer parceria, escreva para o contato oficial da Aurora:
+          </p>
+          <a className="botao-neon" href="mailto:auroraluz47@gmail.com">
+            ENVIAR E-MAIL
+            <small>auroraluz47@gmail.com</small>
+          </a>
+        </section>
+
         <section className="grupo" id="form-parceria">
           <h3 className="grupo-titulo">Quer anunciar ou fazer parceria?</h3>
 
