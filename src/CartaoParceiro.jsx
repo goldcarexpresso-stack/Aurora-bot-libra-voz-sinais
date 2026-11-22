@@ -46,7 +46,8 @@ export default function CartaoParceiro({ p, compacto = false, aoTerminar }) {
   const rotulo = p.botao || (wa ? 'Chamar no WhatsApp' : 'Visitar o site')
   const [som, setSom] = useState(false)
   const frame = useRef(null)
-  const incorporado = tipo && tipo !== 'arquivo' ? linkIncorporado(p.video, tipo, som) : null
+  // O vídeo sempre começa mudo; o som é ligado por comando, sem recarregar o player
+  const incorporado = tipo && tipo !== 'arquivo' ? linkIncorporado(p.video, tipo, false) : null
   const temBotaoSom = tipo === 'arquivo' || tipo === 'youtube' || tipo === 'vimeo'
 
   // Vídeo do YouTube: avisa quando termina para passar ao próximo
@@ -68,6 +69,20 @@ export default function CartaoParceiro({ p, compacto = false, aoTerminar }) {
     window.addEventListener('message', ouvir)
     return () => window.removeEventListener('message', ouvir)
   }, [tipo, aoTerminar])
+
+  function alternarSom() {
+    const novo = !som
+    setSom(novo)
+    const janela = frame.current && frame.current.contentWindow
+    if (!janela) return
+    if (tipo === 'youtube') {
+      janela.postMessage(JSON.stringify({ event: 'command', func: novo ? 'unMute' : 'mute', args: [] }), '*')
+      if (novo) janela.postMessage(JSON.stringify({ event: 'command', func: 'playVideo', args: [] }), '*')
+    }
+    if (tipo === 'vimeo') {
+      janela.postMessage(JSON.stringify({ method: 'setVolume', value: novo ? 1 : 0 }), '*')
+    }
+  }
 
   function aoCarregarIframe() {
     if (tipo === 'youtube' && frame.current && frame.current.contentWindow) {
@@ -104,7 +119,7 @@ export default function CartaoParceiro({ p, compacto = false, aoTerminar }) {
             allow="autoplay; encrypted-media; fullscreen"
           />
           {temBotaoSom && (
-            <button className="video-som" onClick={() => setSom(!som)}>
+            <button className="video-som" onClick={alternarSom}>
               {som ? '🔇 Desligar som' : '🔊 Ligar som'}
             </button>
           )}
