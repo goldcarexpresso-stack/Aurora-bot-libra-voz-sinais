@@ -797,10 +797,11 @@ body {
 div[vw] {
   position: fixed !important;
   top: auto !important;
-  bottom: 10px !important;
-  right: 10px !important;
+  bottom: 92px !important;
+  right: 12px !important;
   left: auto !important;
-  transform: none !important;
+  transform: scale(0.72) !important;
+  transform-origin: bottom right;
 z-index: 900 !important;
   pointer-events: auto;
 }
@@ -1770,8 +1771,8 @@ body:has(.vigia) .tela {
   left: 12px;
   bottom: 92px;
   z-index: 55;
-  padding: 10px 14px;
-  font-size: 14px;
+  padding: 7px 11px;
+  font-size: 13px;
   font-weight: 800;
   color: #FFFFFF;
   background: linear-gradient(110deg, #00e5ff, #1877CC 55%, #b026ff);
@@ -2443,4 +2444,9 @@ body:has(.vigia) .tela {
   border-radius: 16px;
   box-shadow: 0 0 14px rgba(255, 107, 94, 0.5);
   cursor: pointer;
+}
+
+/* Espaço no fim das telas para o conteúdo rolar acima dos botões flutuantes */
+.tela {
+  padding-bottom: 150px;
 }
