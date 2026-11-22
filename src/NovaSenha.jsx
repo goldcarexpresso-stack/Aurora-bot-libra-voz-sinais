@@ -20,7 +20,14 @@ export default function NovaSenha({ aoConcluir }) {
     setCarregando(true)
     const { error } = await supabase.auth.updateUser({ password: senha })
     setCarregando(false)
-    if (error) setErro('Não foi possível salvar a senha: ' + error.message)
+    if (error) {
+      const m = (error.message || '').toLowerCase()
+      if (m.includes('same') || m.includes('different') || m.includes('igual')) {
+        setErro('Use uma senha diferente da antiga.')
+      } else {
+        setErro('Não foi possível salvar a senha. Peça um novo link e tente de novo.')
+      }
+    }
     else aoConcluir()
   }
 
