@@ -11,7 +11,7 @@ function FaixaParceiros() {
     let vivo = true
     supabase
       .from('parceiros')
-      .select('id, nome, descricao, link, imagem, video, botao')
+      .select('id, nome, descricao, link, imagem, video, botao, rotacao')
       .eq('tipo', 'banner')
       .order('ordem', { ascending: true })
       .then(({ data }) => {
@@ -25,8 +25,8 @@ function FaixaParceiros() {
   useEffect(() => {
     if (banners.length < 2) return
     const atual = banners[i % banners.length]
-    // Banner com vídeo fica mais tempo para dar para assistir
-    const espera = atual && atual.video ? 60000 : 5000
+    // Tempo definido pelo dono em cada banner (padrão 5 segundos)
+    const espera = ((atual && atual.rotacao) || 5) * 1000
     const t = setTimeout(() => setI((x) => (x + 1) % banners.length), espera)
     return () => clearTimeout(t)
   }, [banners, i])

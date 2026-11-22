@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 
-const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', video: '', botao: '', tipo: 'banner', ate: '', imagem: '' }
+const VAZIO = { nome: '', categoria: 'Parceiro', descricao: '', link: '', video: '', botao: '', tipo: 'banner', ate: '', imagem: '', rotacao: 5 }
 
 function reduzirImagem(arquivo) {
   return new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ export default function ParceriasDono() {
     const [{ data: p }, { data: d }] = await Promise.all([
       supabase
         .from('parceiros')
-        .select('id, nome, categoria, descricao, link, video, botao, imagem, tipo, ativo, ate, criado_em')
+        .select('id, nome, categoria, descricao, link, video, botao, imagem, tipo, ativo, ate, rotacao, criado_em')
         .order('criado_em', { ascending: false }),
       supabase
         .from('parceria_pedidos')
@@ -70,6 +70,7 @@ export default function ParceriasDono() {
       botao: p.botao || '',
       tipo: p.tipo || 'banner',
       ate: p.ate || '',
+      rotacao: p.rotacao || 5,
       imagem: p.imagem || '',
     })
   }
@@ -121,6 +122,7 @@ export default function ParceriasDono() {
       botao: form.botao.trim() || null,
       tipo: form.tipo,
       ate: form.ate || null,
+      rotacao: Number(form.rotacao) || 5,
       imagem: form.imagem || null,
     }
 
@@ -207,6 +209,18 @@ export default function ParceriasDono() {
           <select className="campo-input" value={form.tipo} onChange={(e) => mudar('tipo', e.target.value)}>
             <option value="banner">Faixa na tela inicial</option>
             <option value="destaque">Só na lista de parceiros</option>
+          </select>
+        </label>
+
+        <label className="campo">
+          <span className="campo-nome">Tempo de cada banner na faixa</span>
+          <select className="campo-input" value={form.rotacao} onChange={(e) => mudar('rotacao', Number(e.target.value))}>
+            <option value={5}>5 segundos</option>
+            <option value={8}>8 segundos</option>
+            <option value={10}>10 segundos</option>
+            <option value={15}>15 segundos</option>
+            <option value={20}>20 segundos</option>
+            <option value={30}>30 segundos (ideal para vídeo)</option>
           </select>
         </label>
 
