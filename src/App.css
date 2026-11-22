@@ -2399,3 +2399,31 @@ body:has(.vigia) .tela {
   border: none;
   cursor: pointer;
 }
+
+/* Vídeo de parceiro: mais alto, ocupa mais a tela, com botão de som */
+.cartao-parceiro-videowrap {
+  position: relative;
+}
+
+.cartao-parceiro-videowrap .cartao-parceiro-midia {
+  aspect-ratio: 4 / 5;
+}
+
+.cartao-parceiro.compacto .cartao-parceiro-videowrap .cartao-parceiro-midia {
+  aspect-ratio: 3 / 4;
+}
+
+.video-som {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #FFFFFF;
+  background: rgba(11, 27, 43, 0.88);
+  border: 1px solid #00e5ff;
+  border-radius: 999px;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+  cursor: pointer;
+}

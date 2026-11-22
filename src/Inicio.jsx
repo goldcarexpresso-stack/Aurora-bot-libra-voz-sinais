@@ -24,9 +24,12 @@ function FaixaParceiros() {
 
   useEffect(() => {
     if (banners.length < 2) return
-    const t = setInterval(() => setI((atual) => (atual + 1) % banners.length), 5000)
-    return () => clearInterval(t)
-  }, [banners.length])
+    const atual = banners[i % banners.length]
+    // Banner com vídeo fica mais tempo para dar para assistir
+    const espera = atual && atual.video ? 60000 : 5000
+    const t = setTimeout(() => setI((x) => (x + 1) % banners.length), espera)
+    return () => clearTimeout(t)
+  }, [banners, i])
 
   if (banners.length === 0) return null
   const b = banners[i % banners.length]
