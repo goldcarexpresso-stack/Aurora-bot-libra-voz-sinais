@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase, conectado } from './supabase.js'
 import Login from './Login.jsx'
 import Perfil from './Perfil.jsx'
@@ -41,6 +41,32 @@ export default function App() {
   const [noPainel, setNoPainel] = useState(false)
   const [dono, setDono] = useState(false)
   const [recuperando, setRecuperando] = useState(false)
+
+  // Botão Voltar do celular: volta para a tela anterior em vez de fechar o app
+  const telaAberta = !!aberto || noPerfil || noPainel
+  const telaAntes = useRef(false)
+  const fechouPeloAparelho = useRef(false)
+
+  useEffect(() => {
+    function aoVoltarAparelho() {
+      fechouPeloAparelho.current = true
+      setAberto(null)
+      setNoPerfil(false)
+      setNoPainel(false)
+    }
+    window.addEventListener('popstate', aoVoltarAparelho)
+    return () => window.removeEventListener('popstate', aoVoltarAparelho)
+  }, [])
+
+  useEffect(() => {
+    if (telaAberta && !telaAntes.current) {
+      window.history.pushState({ aurora: true }, '')
+    } else if (!telaAberta && telaAntes.current && !fechouPeloAparelho.current) {
+      window.history.back()
+    }
+    fechouPeloAparelho.current = false
+    telaAntes.current = telaAberta
+  }, [telaAberta])
 
   useEffect(() => {
     if (!conectado) {
