@@ -5,7 +5,7 @@ function traduzirErro(mensagem) {
   const m = (mensagem || '').toLowerCase()
   if (m.includes('invalid login credentials')) return 'E-mail ou senha incorretos.'
   if (m.includes('user already registered')) return 'Esse e-mail já tem cadastro. Use Entrar.'
-  if (m.includes('password')) return 'A senha precisa ter pelo menos 6 caracteres.'
+  if (m.includes('password')) return 'A senha precisa ter pelo menos 8 caracteres.'
   if (m.includes('email')) return 'Verifique o e-mail digitado.'
   if (m.includes('fetch') || m.includes('network')) return 'Sem conexão. Tente de novo.'
   return 'Não foi possível concluir. Tente de novo.'
@@ -37,8 +37,8 @@ export default function Login() {
       setErro('Digite seu nome.')
       return
     }
-    if (criando && senha.length < 6) {
-      setErro('A senha precisa ter pelo menos 6 caracteres.')
+    if (criando && senha.length < 8) {
+      setErro('A senha precisa ter pelo menos 8 caracteres.')
       return
     }
 

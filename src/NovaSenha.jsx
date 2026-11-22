@@ -9,8 +9,8 @@ export default function NovaSenha({ aoConcluir }) {
 
   async function salvar() {
     setErro('')
-    if (senha.length < 6) {
-      setErro('A senha precisa ter pelo menos 6 caracteres.')
+    if (senha.length < 8) {
+      setErro('A senha precisa ter pelo menos 8 caracteres.')
       return
     }
     if (senha !== confirma) {
