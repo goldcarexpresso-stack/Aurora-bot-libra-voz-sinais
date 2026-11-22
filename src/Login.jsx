@@ -137,7 +137,7 @@ export default function Login() {
         </button>
 
         {!criando && (
-          <button className="link-botao" onClick={esqueciSenha} disabled={carregando}>
+          <button className="login-esqueci" onClick={esqueciSenha} disabled={carregando}>
             Esqueci minha senha
           </button>
         )}

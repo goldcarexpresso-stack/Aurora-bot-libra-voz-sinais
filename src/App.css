@@ -2384,3 +2384,18 @@ body:has(.vigia) .tela {
   animation: none !important;
   transition: none !important;
 }
+
+/* Login: "Esqueci minha senha" legível sobre o fundo claro */
+.login-esqueci {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  color: #0B4F8A;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
