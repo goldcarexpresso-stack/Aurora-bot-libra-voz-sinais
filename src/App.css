@@ -2450,3 +2450,36 @@ body:has(.vigia) .tela {
 .tela {
   padding-bottom: 150px;
 }
+
+/* ===== Versão para computador e notebook (telas largas). No celular nada muda. ===== */
+@media (min-width: 900px) {
+  .tela {
+    max-width: 1200px;
+    padding: 28px 40px 150px;
+  }
+
+  .barra-inferior {
+    max-width: 1200px;
+  }
+
+  .inicio-grade {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .inicio-grade .cartao-largo {
+    grid-column: span 4;
+  }
+
+  .inicio-cards {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .cartao-parceiro-videowrap .cartao-parceiro-midia,
+  .cartao-parceiro.compacto .cartao-parceiro-videowrap .cartao-parceiro-midia {
+    aspect-ratio: 16 / 9;
+  }
+
+  .cartao-parceiro-midia {
+    aspect-ratio: 16 / 7;
+  }
+}
