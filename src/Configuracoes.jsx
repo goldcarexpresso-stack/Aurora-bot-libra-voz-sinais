@@ -2,6 +2,47 @@ import { useState } from 'react'
 import { supabase } from './supabase.js'
 import { lerPrefs, salvarPrefs } from './prefs.js'
 
+function EnviarFeedback({ sessao }) {
+  const [texto, setTexto] = useState('')
+  const [aviso, setAviso] = useState('')
+  const [enviando, setEnviando] = useState(false)
+
+  async function enviar() {
+    setAviso('')
+    const msg = texto.trim()
+    if (msg.length < 3) {
+      setAviso('Escreva pelo menos 3 letras.')
+      return
+    }
+    setEnviando(true)
+    const { error } = await supabase.from('feedbacks').insert({ mensagem: msg, autor_id: sessao.user.id })
+    setEnviando(false)
+    if (error) {
+      setAviso('Não foi possível enviar. Tente de novo.')
+    } else {
+      setTexto('')
+      setAviso('Obrigado! Seu feedback chegou.')
+    }
+  }
+
+  return (
+    <div>
+      <textarea
+        className="campo-input area"
+        rows={4}
+        maxLength={1000}
+        placeholder="O que podemos melhorar?"
+        value={texto}
+        onChange={(e) => setTexto(e.target.value)}
+      />
+      <button className="principal" onClick={enviar} disabled={enviando}>
+        {enviando ? 'Enviando...' : 'Enviar feedback'}
+      </button>
+      {aviso && <p className="aviso-linha">{aviso}</p>}
+    </div>
+  )
+}
+
 const LINHAS = [
   { campo: 'contraste', titulo: 'Contraste alto', texto: 'Bordas e textos mais fortes.' },
   { campo: 'reduzirMovimento', titulo: 'Reduzir animações', texto: 'Tira os pulsos e brilhos da tela.' },
@@ -81,6 +122,11 @@ export default function Configuracoes({ sessao, aoVoltar }) {
             Ver as dicas de novo
           </button>
           {mensagem && <p className="aviso-linha">{mensagem}</p>}
+        </section>
+
+        <section className="grupo">
+          <h3 className="grupo-titulo">Feedback</h3>
+          <EnviarFeedback sessao={sessao} />
         </section>
 
         <section className="grupo">
