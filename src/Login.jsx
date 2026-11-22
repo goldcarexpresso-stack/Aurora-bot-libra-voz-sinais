@@ -56,6 +56,7 @@ export default function Login() {
     setCarregando(false)
 
     if (resposta.error) setErro(traduzirErro(resposta.error.message))
+    else if (criando && !resposta.data?.session) setAviso('Conta criada! Confira seu e-mail e toque no link para confirmar. Depois, toque em Entrar.')
   }
 
   async function esqueciSenha() {
