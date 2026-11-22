@@ -6,20 +6,52 @@ export function idYoutube(url) {
   return m ? m[1] : null
 }
 
+// Diz de que tipo é o vídeo do anunciante
+export function tipoVideo(url) {
+  if (!url) return null
+  if (idYoutube(url)) return 'youtube'
+  if (/\.(mp4|webm|mov)(\?|#|$)/i.test(url)) return 'arquivo'
+  if (/vimeo\.com\/\d+/.test(url)) return 'vimeo'
+  if (/tiktok\.com\/.*video\/\d+/.test(url)) return 'tiktok'
+  if (/instagram\.com\/(p|reel)\/[\w-]+/.test(url)) return 'instagram'
+  return null
+}
+
+function linkIncorporado(url, tipo, som) {
+  if (tipo === 'youtube') {
+    return `https://www.youtube-nocookie.com/embed/${idYoutube(url)}?autoplay=1&mute=${som ? 0 : 1}&enablejsapi=1&controls=0&playsinline=1&modestbranding=1`
+  }
+  if (tipo === 'vimeo') {
+    const id = url.match(/vimeo\.com\/(\d+)/)[1]
+    return `https://player.vimeo.com/video/${id}?autoplay=1&muted=${som ? 0 : 1}&playsinline=1`
+  }
+  if (tipo === 'tiktok') {
+    const id = url.match(/video\/(\d+)/)[1]
+    return `https://www.tiktok.com/embed/v2/${id}`
+  }
+  if (tipo === 'instagram') {
+    const m = url.match(/instagram\.com\/(p|reel)\/([\w-]+)/)
+    return `https://www.instagram.com/${m[1]}/${m[2]}/embed`
+  }
+  return null
+}
+
 function ehWhatsApp(url) {
   return !!url && /wa\.me|whatsapp/i.test(url)
 }
 
 export default function CartaoParceiro({ p, compacto = false, aoTerminar }) {
-  const idVideo = idYoutube(p.video)
+  const tipo = tipoVideo(p.video)
   const wa = ehWhatsApp(p.link)
   const rotulo = p.botao || (wa ? 'Chamar no WhatsApp' : 'Visitar o site')
   const [som, setSom] = useState(false)
   const frame = useRef(null)
+  const incorporado = tipo && tipo !== 'arquivo' ? linkIncorporado(p.video, tipo, som) : null
+  const temBotaoSom = tipo === 'arquivo' || tipo === 'youtube' || tipo === 'vimeo'
 
-  // Ouve o YouTube: quando o vídeo termina, avisa para passar para o próximo
+  // Vídeo do YouTube: avisa quando termina para passar ao próximo
   useEffect(() => {
-    if (!idVideo || !aoTerminar) return
+    if (tipo !== 'youtube' || !aoTerminar) return
     function ouvir(e) {
       if (!frame.current || e.source !== frame.current.contentWindow) return
       let d = e.data
@@ -35,10 +67,10 @@ export default function CartaoParceiro({ p, compacto = false, aoTerminar }) {
     }
     window.addEventListener('message', ouvir)
     return () => window.removeEventListener('message', ouvir)
-  }, [idVideo, aoTerminar])
+  }, [tipo, aoTerminar])
 
-  function aoCarregarVideo() {
-    if (frame.current && frame.current.contentWindow) {
+  function aoCarregarIframe() {
+    if (tipo === 'youtube' && frame.current && frame.current.contentWindow) {
       frame.current.contentWindow.postMessage(JSON.stringify({ event: 'listening' }), '*')
     }
   }
@@ -47,19 +79,35 @@ export default function CartaoParceiro({ p, compacto = false, aoTerminar }) {
     <div className={compacto ? 'cartao-parceiro compacto' : 'cartao-parceiro'}>
       <span className="cartao-parceiro-selo">Patrocinado</span>
 
-      {idVideo ? (
+      {tipo === 'arquivo' ? (
         <div className="cartao-parceiro-videowrap">
-          <iframe
-            ref={frame}
-            onLoad={aoCarregarVideo}
+          <video
             className="cartao-parceiro-midia"
-            src={`https://www.youtube-nocookie.com/embed/${idVideo}?autoplay=1&mute=${som ? 0 : 1}&enablejsapi=1&controls=0&playsinline=1&modestbranding=1`}
-            title={p.nome}
-            allow="autoplay; encrypted-media"
+            src={p.video}
+            autoPlay
+            playsInline
+            muted={!som}
+            onEnded={aoTerminar}
           />
           <button className="video-som" onClick={() => setSom(!som)}>
             {som ? '🔇 Desligar som' : '🔊 Ligar som'}
           </button>
+        </div>
+      ) : incorporado ? (
+        <div className="cartao-parceiro-videowrap">
+          <iframe
+            ref={frame}
+            onLoad={aoCarregarIframe}
+            className="cartao-parceiro-midia"
+            src={incorporado}
+            title={p.nome}
+            allow="autoplay; encrypted-media; fullscreen"
+          />
+          {temBotaoSom && (
+            <button className="video-som" onClick={() => setSom(!som)}>
+              {som ? '🔇 Desligar som' : '🔊 Ligar som'}
+            </button>
+          )}
         </div>
       ) : p.imagem ? (
         <img src={p.imagem} alt={p.nome} className="cartao-parceiro-midia" />
@@ -81,7 +129,7 @@ export default function CartaoParceiro({ p, compacto = false, aoTerminar }) {
         </a>
       )}
 
-      {p.video && !idVideo && (
+      {p.video && !incorporado && tipo !== 'arquivo' && (
         <a className="cartao-botao cartao-botao-site" href={p.video} target="_blank" rel="noopener noreferrer">
           ▶ Ver vídeo
         </a>

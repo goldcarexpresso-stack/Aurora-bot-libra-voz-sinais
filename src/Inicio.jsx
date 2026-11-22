@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Titulo from './Titulo.jsx'
 import { supabase } from './supabase.js'
-import CartaoParceiro, { idYoutube } from './CartaoParceiro.jsx'
+import CartaoParceiro, { tipoVideo } from './CartaoParceiro.jsx'
 
 function FaixaParceiros() {
   const [banners, setBanners] = useState([])
@@ -31,12 +31,12 @@ function FaixaParceiros() {
   useEffect(() => {
     const atual = banners[i % banners.length]
     if (!atual) return
-    // Só vídeo do YouTube toca dentro do cartão; link de outro site fica como botão "Ver vídeo"
-    const tocaNoCartao = !!idYoutube(atual.video)
-    if (banners.length < 2 && !tocaNoCartao) return
-    // Vídeo do YouTube: passa quando terminar (3 minutos é só uma segurança)
+    // Arquivo de vídeo e YouTube: passam quando o vídeo termina (3 minutos é só segurança)
     // Demais: tempo definido pelo dono em cada banner (padrão 5 segundos)
-    const espera = tocaNoCartao ? 180000 : ((atual.rotacao || 5) * 1000)
+    const tipo = tipoVideo(atual.video)
+    const esperaFim = tipo === 'youtube' || tipo === 'arquivo'
+    if (banners.length < 2 && !esperaFim) return
+    const espera = esperaFim ? 180000 : ((atual.rotacao || 5) * 1000)
     const t = setTimeout(proximo, espera)
     return () => clearTimeout(t)
   }, [banners, i, ciclo])
