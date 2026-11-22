@@ -11,9 +11,21 @@ export default function Parceiros({ sessao, aoVoltar }) {
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [erro, setErro] = useState('')
+  const [precos, setPrecos] = useState({})
 
   useEffect(() => {
     let vivo = true
+    supabase
+      .from('precos_parceria')
+      .select('chave, valor')
+      .then(({ data }) => {
+        if (!vivo) return
+        const mapa = {}
+        ;(data || []).forEach((x) => {
+          mapa[x.chave] = x.valor
+        })
+        setPrecos(mapa)
+      })
     supabase
       .from('parceiros')
       .select('id, nome, categoria, descricao, link, video, imagem, botao, tipo, ate, ordem')
@@ -79,6 +91,39 @@ export default function Parceiros({ sessao, aoVoltar }) {
           🤝 QUER FAZER PARCERIA?
           <small>Anuncie sua marca aqui</small>
         </button>
+
+        {(precos.bannerSemana || precos.bannerMes || precos.destaqueSemana || precos.destaqueMes) && (
+          <section className="grupo">
+            <h3 className="grupo-titulo">💰 Quanto custa divulgar</h3>
+            <div className="plans">
+              {(precos.bannerSemana || precos.bannerMes) && (
+                <div className="plan">
+                  <b>
+                    🖼️ Banner na faixa
+                    <small>Sua marca passa na tela inicial do Aurora</small>
+                  </b>
+                  <div>
+                    {precos.bannerSemana && <span><em>{precos.bannerSemana}</em>/semana</span>}
+                    {precos.bannerMes && <span><em>{precos.bannerMes}</em>/mês</span>}
+                  </div>
+                </div>
+              )}
+              {(precos.destaqueSemana || precos.destaqueMes) && (
+                <div className="plan">
+                  <b>
+                    ⭐ Destaque
+                    <small>Sua marca em evidência na tela inicial</small>
+                  </b>
+                  <div>
+                    {precos.destaqueSemana && <span><em>{precos.destaqueSemana}</em>/semana</span>}
+                    {precos.destaqueMes && <span><em>{precos.destaqueMes}</em>/mês</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+            {precos.promocao && <div className="promo">🎁 {precos.promocao}</div>}
+          </section>
+        )}
 
         {carregando && <p className="aviso-linha">Carregando...</p>}
 

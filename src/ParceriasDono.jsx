@@ -49,6 +49,9 @@ export default function ParceriasDono() {
   const [erro, setErro] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [enviandoImagem, setEnviandoImagem] = useState(false)
+  const [precos, setPrecos] = useState({})
+  const [salvandoPrecos, setSalvandoPrecos] = useState(false)
+  const [precosSalvos, setPrecosSalvos] = useState(false)
 
   async function carregar() {
     const [{ data: p }, { data: d }] = await Promise.all([
@@ -64,6 +67,12 @@ export default function ParceriasDono() {
     ])
     setParceiros(p || [])
     setPedidos(d || [])
+    const { data: pr } = await supabase.from('precos_parceria').select('chave, valor')
+    const mapa = {}
+    ;(pr || []).forEach((x) => {
+      mapa[x.chave] = x.valor
+    })
+    setPrecos(mapa)
   }
 
   useEffect(() => {
@@ -169,6 +178,24 @@ export default function ParceriasDono() {
     carregar()
   }
 
+  function mudarPreco(chave, valor) {
+    setPrecosSalvos(false)
+    setPrecos((atual) => ({ ...atual, [chave]: valor }))
+  }
+
+  async function salvarPrecos() {
+    setSalvandoPrecos(true)
+    const linhas = Object.keys(precos).map((chave) => ({
+      chave,
+      valor: (precos[chave] || '').trim(),
+      atualizado_em: new Date().toISOString(),
+    }))
+    const { error } = await supabase.from('precos_parceria').upsert(linhas, { onConflict: 'chave' })
+    setSalvandoPrecos(false)
+    setPrecosSalvos(!error)
+    if (error) setErro('Não foi possível salvar a tabela de preços. Tente de novo.')
+  }
+
   async function marcarLido(d) {
     await supabase.from('parceria_pedidos').update({ lido: true }).eq('id', d.id)
     carregar()
@@ -257,6 +284,35 @@ export default function ParceriasDono() {
           </button>
         )}
       </form>
+
+      <h3 className="grupo-titulo">💰 Tabela de preços</h3>
+      <p className="aviso-linha">
+        Estes valores aparecem para quem toca em "Quer fazer parceria?". Deixe em branco o que não quiser mostrar.
+      </p>
+      <label className="campo">
+        <span className="campo-nome">Banner na faixa — por semana</span>
+        <input className="campo-input" placeholder="Ex.: R$ 25" value={precos.bannerSemana || ''} onChange={(e) => mudarPreco('bannerSemana', e.target.value)} />
+      </label>
+      <label className="campo">
+        <span className="campo-nome">Banner na faixa — por mês</span>
+        <input className="campo-input" placeholder="Ex.: R$ 80" value={precos.bannerMes || ''} onChange={(e) => mudarPreco('bannerMes', e.target.value)} />
+      </label>
+      <label className="campo">
+        <span className="campo-nome">Destaque — por semana</span>
+        <input className="campo-input" placeholder="Ex.: R$ 15" value={precos.destaqueSemana || ''} onChange={(e) => mudarPreco('destaqueSemana', e.target.value)} />
+      </label>
+      <label className="campo">
+        <span className="campo-nome">Destaque — por mês</span>
+        <input className="campo-input" placeholder="Ex.: R$ 45" value={precos.destaqueMes || ''} onChange={(e) => mudarPreco('destaqueMes', e.target.value)} />
+      </label>
+      <label className="campo">
+        <span className="campo-nome">Promoção (opcional)</span>
+        <input className="campo-input" placeholder="Ex.: 1ª semana grátis" value={precos.promocao || ''} onChange={(e) => mudarPreco('promocao', e.target.value)} />
+      </label>
+      <button className="botao-neon" type="button" onClick={salvarPrecos} disabled={salvandoPrecos}>
+        {salvandoPrecos ? 'Salvando...' : 'SALVAR TABELA DE PREÇOS'}
+      </button>
+      {precosSalvos && <p className="aviso-linha">Tabela salva.</p>}
 
       <h3 className="grupo-titulo">Parceiros cadastrados</h3>
       {parceiros.length === 0 && <p className="aviso-linha">Nenhum parceiro ainda.</p>}
