@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 
-const CHAVE_PUBLICA = import.meta.env.VITE_VAPID_PUBLIC || 'BCc_vih3WPt9urH7GbBmJj0Jv6eEPNChe-des842DHq7etlpRNt2elRqUipdnEmTu97HRfarsMtajIOEaYw63Tc'
+// Chave pública VAPID: pode ficar no código (não é segredo)
+const CHAVE_PUBLICA = 'BCc_vih3WPt9urH7GbBmJj0Jv6eEPNChe-des842DHq7etlpRNt2elRqUipdnEmTu97HRfarsMtajIOEaYw63Tc' || 'BCc_vih3WPt9urH7GbBmJj0Jv6eEPNChe-des842DHq7etlpRNt2elRqUipdnEmTu97HRfarsMtajIOEaYw63Tc'
 
 function paraBytes(base64) {
   const completo = (base64 + '='.repeat((4 - (base64.length % 4)) % 4))
