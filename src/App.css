@@ -2427,3 +2427,20 @@ body:has(.vigia) .tela {
   box-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
   cursor: pointer;
 }
+
+/* Aviso do dono: pedidos de parceria novos */
+.pedidos-aviso {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #FFFFFF;
+  text-align: center;
+  background: linear-gradient(110deg, #B3261E, #E04236);
+  border: 2px solid #FF6B5E;
+  border-radius: 16px;
+  box-shadow: 0 0 14px rgba(255, 107, 94, 0.5);
+  cursor: pointer;
+}

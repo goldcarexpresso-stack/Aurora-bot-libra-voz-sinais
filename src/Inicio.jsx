@@ -48,6 +48,34 @@ function FaixaParceiros() {
   )
 }
 
+function PedidosNovos({ aoPainel }) {
+  const [n, setN] = useState(0)
+
+  useEffect(() => {
+    let vivo = true
+    async function contar() {
+      const { count } = await supabase
+        .from('parceria_pedidos')
+        .select('id', { count: 'exact', head: true })
+        .eq('lido', false)
+      if (vivo) setN(count || 0)
+    }
+    contar()
+    const t = setInterval(contar, 60000)
+    return () => {
+      vivo = false
+      clearInterval(t)
+    }
+  }, [])
+
+  if (!n) return null
+  return (
+    <button className="pedidos-aviso" onClick={aoPainel}>
+      🤝 {n} {n === 1 ? 'pedido de parceria novo' : 'pedidos de parceria novos'} · abrir
+    </button>
+  )
+}
+
 const ITENS = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
@@ -111,6 +139,8 @@ export default function Inicio({ sessao, dono, aoAbrir, aoPerfil, aoPainel }) {
           <span className="ficha-titulo">Meu perfil</span>
         </button>
       </section>
+
+      {dono && <PedidosNovos aoPainel={aoPainel} />}
 
       {dono && (
         <button className="botao-painel" onClick={aoPainel}>
