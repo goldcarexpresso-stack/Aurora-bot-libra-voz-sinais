@@ -100,6 +100,15 @@ export default function App() {
 
     let vivo = true
 
+    // Registra que a pessoa abriu o app hoje (alimenta os gráficos do dono)
+    try {
+      const instalado =
+        window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+      supabase.rpc('registrar_acesso', { p_instalado: instalado }).then(() => {}, () => {})
+    } catch {
+      // sem registro de acesso, o app continua normal
+    }
+
     supabase
       .from('perfis')
       .select('dono')

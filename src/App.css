@@ -2563,3 +2563,47 @@ body.estudar-libras .estudar-tela > .instrucao {
 body.estudar-libras .estudar-controles {
   margin-top: 260px;
 }
+
+/* ----- Painel do dono: gráficos interativos ----- */
+.dash{--s1:#14304A;--s2:#0f2740;--bd:#2A5170;--muted:#8AA4BC;--gold:#7FD1CC;margin-top:14px}
+.dash-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.dash-tile{background:linear-gradient(160deg,var(--s1),var(--s2));border:1px solid var(--bd);border-radius:18px;padding:14px;position:relative;overflow:hidden}
+.dash-tile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.dash-tile b{display:block;font-size:28px;line-height:1.1;color:#fff;letter-spacing:-.02em}
+.dash-tile span{display:block;margin-top:4px;font-size:12px;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.04em}
+.dash-tile small{display:block;margin-top:3px;font-size:11px;color:var(--muted);line-height:1.3}
+.dash-chips{display:flex;gap:8px;margin:4px 0 12px;position:sticky;top:0;z-index:5;padding:8px 0;background:linear-gradient(180deg,#0B1B2B 70%,transparent)}
+.dash-chips button{flex:1;border:1px solid var(--bd);background:var(--s1);color:#cbd5e1;border-radius:99px;padding:9px 6px;font-size:13px;font-weight:700;cursor:pointer}
+.dash-chips button.on{background:var(--gold);color:#0B1B2B;border-color:var(--gold);box-shadow:0 0 14px rgba(127,209,204,.35)}
+.dash-card{background:var(--s1);border:1px solid var(--bd);border-radius:20px;padding:14px 12px 10px;margin-bottom:12px}
+.dash-h{padding:0 4px 8px}.dash-h b{display:block;font-size:15px;color:#fff}.dash-h small{color:var(--muted);font-size:12px}
+.dash-nota{font-size:11px;color:var(--muted);line-height:1.4;margin:6px 4px 14px}
+.dash-lista{display:grid;gap:8px;margin-top:10px}
+.dash-pessoa{background:rgba(255,255,255,.05);border-radius:12px;padding:9px 12px}
+.dash-pessoa span{display:block;font-weight:700;font-size:14px;color:#fff}.dash-pessoa small{color:var(--muted);font-size:11px;word-break:break-all}
+.grafico-resumo-dono{margin:0 4px 12px;font-size:14px;font-weight:700;color:#7FD1CC}
+.gf{position:relative}
+.gf-svg{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.gf-grade{stroke:rgba(255,255,255,.07);stroke-width:1}
+.gf-eixo{fill:#7d8aa3;font-size:9px}
+.gf-bar{transform-box:fill-box;transform-origin:bottom;animation:gfgrow .55s cubic-bezier(.2,.8,.2,1) both;transition:opacity .15s}
+.gf-bar.dim{opacity:.35}
+@keyframes gfgrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.gf-linha{stroke-dasharray:1;stroke-dashoffset:1;animation:gfdraw 1s ease forwards}
+@keyframes gfdraw{to{stroke-dashoffset:0}}
+.gf-area{animation:gffade .9s ease both}
+@keyframes gffade{from{opacity:0}to{opacity:1}}
+.gf-guia{stroke:rgba(255,255,255,.35);stroke-width:1;stroke-dasharray:3 3}
+.gf-tip{position:absolute;z-index:4;transform:translate(-50%,-100%);margin-top:-6px;background:rgba(2,6,23,.94);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:7px 10px;font-size:12px;line-height:1.35;pointer-events:none;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.45);color:#fff}
+.gf-tip[data-lado="esq"]{transform:translate(-12%,-100%)}.gf-tip[data-lado="dir"]{transform:translate(-88%,-100%)}
+.gf-tip b{display:block;margin-bottom:2px}.gf-tip div i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.gf-tip div b{display:inline;margin-left:3px;font-size:13px}
+.gf-vazio{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;border:1px dashed var(--bd);border-radius:14px}
+.gf-rwrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center}
+.gf-rosca{width:150px;height:150px;flex:0 0 auto}
+.gf-fatia{cursor:pointer;transition:opacity .2s,stroke-width .2s}.gf-fatia.dim{opacity:.28}.gf-fatia.on{stroke-width:20}
+.gf-c1{fill:#fff;font-size:22px;font-weight:800}.gf-c2{fill:#94a3b8;font-size:9px}
+.gf-leg{flex:1;min-width:170px;display:grid;gap:6px}
+.gf-li{display:flex;align-items:center;gap:8px;width:100%;background:rgba(255,255,255,.05);border:1px solid transparent;border-radius:12px;padding:8px 10px;color:#dbe4f3;font-size:13px;text-align:left;cursor:pointer}
+.gf-li i{width:10px;height:10px;border-radius:50%;flex:0 0 auto}.gf-li span{flex:1}.gf-li b{color:#fff}.gf-li em{font-style:normal;color:var(--muted);font-size:11px;width:34px;text-align:right}
+.gf-li.on{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.09)}
