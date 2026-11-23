@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase.js'
 
-export default function Perfil({ sessao, aoVoltar }) {
+export default function Perfil({ sessao, dono, aoPainel, aoVoltar }) {
   const [perfil, setPerfil] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
@@ -96,6 +96,12 @@ export default function Perfil({ sessao, aoVoltar }) {
               <strong className="perfil-valor">{sessao.user.email}</strong>
             </div>
           </>
+        )}
+
+        {dono && (
+          <button className="botao-painel" onClick={aoPainel}>
+            📊 Painel do dono
+          </button>
         )}
 
         <button className="sair" onClick={sair}>

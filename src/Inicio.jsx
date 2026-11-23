@@ -153,12 +153,6 @@ export default function Inicio({ sessao, dono, aoAbrir, aoPerfil, aoPainel }) {
 
       {dono && <PedidosNovos aoPainel={aoPainel} />}
 
-      {dono && (
-        <button className="botao-painel" onClick={aoPainel}>
-          📊 Painel do dono
-        </button>
-      )}
-
       <footer className="rodape">
         O SOS avisa seus contatos de confiança dentro da Aurora, com o app aberto.
       </footer>

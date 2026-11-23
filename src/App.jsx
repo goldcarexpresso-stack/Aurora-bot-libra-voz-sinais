@@ -187,7 +187,7 @@ export default function App() {
     }
 
     if (noPerfil) {
-      return <Perfil sessao={sessao} aoVoltar={() => setNoPerfil(false)} />
+      return <Perfil sessao={sessao} dono={dono} aoPainel={() => setNoPainel(true)} aoVoltar={() => setNoPerfil(false)} />
     }
 
     if (aberto && aberto.id === 'libras') {
