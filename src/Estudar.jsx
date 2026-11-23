@@ -54,6 +54,17 @@ export default function Estudar({ aoVoltar }) {
         <div className="cartao-claro estudar-frase">{frases[atual]}</div>
 
         <div className="estudar-controles">
+        <button
+          className="secundario"
+          style={{ width: '100%' }}
+          onClick={() => {
+            const botao = document.querySelector('.vw-access-button')
+            if (botao) botao.click()
+          }}
+        >
+          🤟 Ver esta frase em Libras
+        </button>
+
         <p className="aviso-linha">
           Frase {atual + 1} de {total}
         </p>
