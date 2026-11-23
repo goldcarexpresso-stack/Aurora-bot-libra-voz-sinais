@@ -88,6 +88,7 @@ function PedidosNovos({ aoPainel }) {
 
 const ITENS = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
+  { id: 'estudar', icone: '📚', titulo: 'Estudar' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
   { id: 'conversas', icone: '💬', titulo: 'Minhas conversas' },
   { id: 'contatos', icone: '👥', titulo: 'Contatos' },
