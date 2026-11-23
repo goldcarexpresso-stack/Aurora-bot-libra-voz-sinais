@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // Divide o texto em frases para ler uma de cada vez
 function frasesDo(texto) {
@@ -13,6 +13,20 @@ export default function Estudar({ aoVoltar }) {
   const [frases, setFrases] = useState([])
   const [atual, setAtual] = useState(0)
   const [lendo, setLendo] = useState(false)
+
+  // Quando a mãozinha abre, o texto sobe e os botões descem para não ficarem cobertos
+  useEffect(() => {
+    function aoClicar(e) {
+      if (e.target.closest && e.target.closest('.vw-access-button')) {
+        document.body.classList.toggle('estudar-libras')
+      }
+    }
+    document.addEventListener('click', aoClicar)
+    return () => {
+      document.removeEventListener('click', aoClicar)
+      document.body.classList.remove('estudar-libras')
+    }
+  }, [])
 
   function comecar() {
     const lista = frasesDo(texto)
@@ -37,8 +51,9 @@ export default function Estudar({ aoVoltar }) {
           Leia uma frase por vez. Para ver a frase em Libras, toque na mãozinha azul.
         </p>
 
-        <div className="estudar-frase">{frases[atual]}</div>
+        <div className="cartao-claro estudar-frase">{frases[atual]}</div>
 
+        <div className="estudar-controles">
         <p className="aviso-linha">
           Frase {atual + 1} de {total}
         </p>
@@ -67,6 +82,7 @@ export default function Estudar({ aoVoltar }) {
           <button className="secundario" onClick={() => setLendo(false)}>
             Trocar texto
           </button>
+        </div>
         </div>
       </div>
     )

@@ -2531,15 +2531,11 @@ body:has(.vigia) .tela {
 
 .estudar-frase {
   min-height: 45vh;
-  display: flex;
-  align-items: center;
   padding: 20px;
   font-size: 24px;
   line-height: 1.5;
-  color: #0B1B2B;
-  background: linear-gradient(180deg, #F4F8FB 0%, #DCE6EE 100%);
-  border: 2px solid #4FC3D1;
-  border-radius: 16px;
+  text-align: left;
+  justify-content: flex-start;
 }
 
 .estudar-botoes {
@@ -2550,4 +2546,20 @@ body:has(.vigia) .tela {
 
 .estudar-botoes > button {
   flex: 1;
+}
+
+/* Quando a mãozinha está aberta: texto no topo e botões abaixo do painel */
+body.estudar-libras .estudar-frase {
+  min-height: 0;
+  height: 150px;
+  overflow-y: auto;
+  font-size: 20px;
+}
+
+body.estudar-libras .estudar-tela > .instrucao {
+  display: none;
+}
+
+body.estudar-libras .estudar-controles {
+  margin-top: 260px;
 }
