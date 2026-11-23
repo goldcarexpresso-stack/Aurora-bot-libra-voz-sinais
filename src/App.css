@@ -2517,3 +2517,37 @@ body:has(.vigia) .tela {
 .pessoa .evento-detalhe {
   color: #1E3A52;
 }
+
+/* ----- Estudar: layout que não some atrás do VLibras ----- */
+.estudar-tela {
+  padding-bottom: 320px;
+}
+
+.estudar-area {
+  min-height: 45vh;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.estudar-frase {
+  min-height: 45vh;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  font-size: 24px;
+  line-height: 1.5;
+  color: #0B1B2B;
+  background: linear-gradient(180deg, #F4F8FB 0%, #DCE6EE 100%);
+  border: 2px solid #4FC3D1;
+  border-radius: 16px;
+}
+
+.estudar-botoes {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.estudar-botoes > button {
+  flex: 1;
+}
