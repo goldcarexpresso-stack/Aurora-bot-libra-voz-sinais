@@ -6,6 +6,7 @@ import Falar from './Falar.jsx'
 import Contatos from './Contatos.jsx'
 import Conversas from './Conversas.jsx'
 import Libras from './Libras.jsx'
+import Estudar from './Estudar.jsx'
 import Ambiente from './Ambiente.jsx'
 import Painel from './Painel.jsx'
 import Confianca from './Confianca.jsx'
@@ -23,6 +24,7 @@ import { aplicarPrefs, lerPrefs } from './prefs.js'
 aplicarPrefs(lerPrefs())
 const MENU = [
   { id: 'libras', icone: '🤟', titulo: 'Falar em Libras' },
+  { id: 'estudar', icone: '📚', titulo: 'Estudar' },
   { id: 'falar', icone: '🎤', titulo: 'Falar' },
   { id: 'conversas', icone: '💬', titulo: 'Minhas conversas' },
   { id: 'contatos', icone: '👥', titulo: 'Contatos' },
@@ -190,6 +192,10 @@ export default function App() {
 
     if (aberto && aberto.id === 'libras') {
       return <Libras aoVoltar={() => setAberto(null)} />
+    }
+
+    if (aberto && aberto.id === 'estudar') {
+      return <Estudar aoVoltar={() => setAberto(null)} />
     }
 
     if (aberto && aberto.id === 'falar') {
